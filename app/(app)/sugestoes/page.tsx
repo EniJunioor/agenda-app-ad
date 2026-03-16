@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useAgenda } from "@/context/agenda-context"
 import { MobileNav } from "@/components/agenda/mobile-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { PageTransition, FadeIn } from "@/components/page-transition"
 import { EventModal } from "@/components/agenda/event-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -12,11 +13,10 @@ import {
   Sparkles, 
   RefreshCw, 
   Clock, 
-  Star,
   Plus,
-  ChevronRight,
+  ArrowRight,
   Heart,
-  Zap
+  Lightbulb
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
@@ -36,19 +36,15 @@ const iconMap: Record<string, LucideIcon> = {
 }
 
 const difficultyConfig = {
-  facil: { label: "Facil", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
-  medio: { label: "Medio", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-  elaborado: { label: "Elaborado", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" }
+  facil: { label: "Facil", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10" },
+  medio: { label: "Medio", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10" },
+  elaborado: { label: "Elaborado", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-500/10" }
 }
 
 export default function SugestoesPage() {
-  const { dailySuggestions, refreshSuggestions, addEvent } = useAgenda()
+  const { dailySuggestions, refreshSuggestions } = useAgenda()
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedSuggestion, setSelectedSuggestion] = useState<{
-    title: string
-    category: string
-  } | null>(null)
   const [likedSuggestions, setLikedSuggestions] = useState<Set<string>>(new Set())
   
   const handleRefresh = () => {
@@ -56,12 +52,7 @@ export default function SugestoesPage() {
     setTimeout(() => {
       refreshSuggestions()
       setIsRefreshing(false)
-    }, 600)
-  }
-  
-  const handleAddToAgenda = (suggestion: { title: string; category: string }) => {
-    setSelectedSuggestion(suggestion)
-    setIsModalOpen(true)
+    }, 500)
   }
   
   const toggleLike = (id: string) => {
@@ -76,243 +67,150 @@ export default function SugestoesPage() {
     })
   }
   
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
-  }
-  
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { type: "spring", stiffness: 300, damping: 25 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -30, 
-      scale: 0.95,
-      transition: { duration: 0.2 }
-    }
-  }
-  
   return (
-    <>
-      <motion.div 
-        className="p-4 lg:p-8 pb-24 lg:pb-8 max-w-4xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
+    <PageTransition>
+      <div className="min-h-screen pb-24 lg:pb-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2 lg:hidden">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-warm flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-white" />
+        <header className="sticky top-0 z-30 glass border-b border-border/40">
+          <div className="flex items-center justify-between p-4 lg:px-8">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-gold/15 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-gold" />
+              </div>
+              <div>
+                <h1 className="font-serif text-xl text-foreground">Sugestoes</h1>
+              </div>
             </div>
-            <h1 className="font-serif text-2xl text-foreground">Sugestoes</h1>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="gap-1.5 text-xs"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">Novas</span>
+              </Button>
+              <ThemeToggle />
+            </div>
           </div>
-          <ThemeToggle />
-        </div>
+        </header>
         
-        {/* Subtitle */}
-        <motion.p 
-          className="text-muted-foreground mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          Ideias especiais para voces aproveitarem juntos hoje
-        </motion.p>
-        
-        {/* Refresh Button */}
-        <motion.div 
-          className="flex justify-end mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="gap-2 rounded-lg"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            Novas sugestoes
-          </Button>
-        </motion.div>
-        
-        {/* Suggestions Cards */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={dailySuggestions.map(s => s.id).join("-")}
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="space-y-4"
-          >
-            {dailySuggestions.map((suggestion, idx) => {
-              const category = getCategoryById(suggestion.category)
-              const Icon = iconMap[suggestion.icon] || Sparkles
-              const difficulty = difficultyConfig[suggestion.difficulty]
-              const isLiked = likedSuggestions.has(suggestion.id)
-              
-              return (
-                <motion.div
-                  key={suggestion.id}
-                  variants={cardVariants}
-                  layout
-                >
-                  <Card className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
-                    <CardContent className="p-0">
-                      <div className="flex">
-                        {/* Left accent */}
-                        <div 
-                          className="w-1.5 shrink-0"
-                          style={{ backgroundColor: category?.text || "#E07070" }}
-                        />
-                        
-                        <div className="flex-1 p-5">
-                          {/* Header */}
-                          <div className="flex items-start gap-4 mb-3">
-                            <motion.div
-                              className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
-                              style={{ backgroundColor: category?.bg || "#FEF2F0" }}
-                              whileHover={{ scale: 1.1, rotate: 5 }}
-                            >
-                              <Icon 
-                                className="h-6 w-6" 
-                                style={{ color: category?.text || "#E07070" }}
-                              />
-                            </motion.div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${difficulty.bg} ${difficulty.color}`}>
-                                  {difficulty.label}
-                                </span>
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {suggestion.duration}
-                                </span>
-                              </div>
-                              <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                                {suggestion.title}
-                              </h3>
+        <main className="p-4 lg:p-8 max-w-3xl mx-auto space-y-4">
+          <FadeIn delay={0.1}>
+            <p className="text-sm text-muted-foreground">
+              Ideias especiais para voces hoje
+            </p>
+          </FadeIn>
+          
+          {/* Suggestions Cards */}
+          <AnimatePresence mode="wait">
+            <div className="space-y-3">
+              {dailySuggestions.map((suggestion, idx) => {
+                const category = getCategoryById(suggestion.category)
+                const Icon = iconMap[suggestion.icon] || Sparkles
+                const difficulty = difficultyConfig[suggestion.difficulty]
+                const isLiked = likedSuggestions.has(suggestion.id)
+                
+                return (
+                  <motion.div
+                    key={suggestion.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 + idx * 0.08 }}
+                  >
+                    <Card className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <motion.div
+                            className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: category?.bg || "#FEF2F0" }}
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            <Icon 
+                              className="h-5 w-5" 
+                              style={{ color: category?.text || "#E07070" }}
+                            />
+                          </motion.div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${difficulty.bg} ${difficulty.color}`}>
+                                {difficulty.label}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                <Clock className="h-2.5 w-2.5" />
+                                {suggestion.duration}
+                              </span>
                             </div>
                             
-                            {/* Like button */}
-                            <motion.button
-                              onClick={() => toggleLike(suggestion.id)}
-                              className={`p-2 rounded-lg transition-colors ${
-                                isLiked 
-                                  ? "bg-primary/10 text-primary" 
-                                  : "text-muted-foreground hover:text-primary hover:bg-secondary"
-                              }`}
-                              whileTap={{ scale: 0.85 }}
-                              animate={isLiked ? { scale: [1, 1.3, 1] } : {}}
-                            >
-                              <Heart className={`h-5 w-5 ${isLiked ? "fill-primary" : ""}`} />
-                            </motion.button>
-                          </div>
-                          
-                          {/* Description */}
-                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                            {suggestion.description}
-                          </p>
-                          
-                          {/* Action */}
-                          <motion.div
-                            whileHover={{ x: 4 }}
-                          >
+                            <h3 className="font-medium text-foreground text-sm mb-1">
+                              {suggestion.title}
+                            </h3>
+                            
+                            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                              {suggestion.description}
+                            </p>
+                            
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="gap-2 text-primary hover:text-primary hover:bg-primary/10 -ml-2"
-                              onClick={() => handleAddToAgenda({ 
-                                title: suggestion.title, 
-                                category: suggestion.category 
-                              })}
+                              className="gap-1 text-xs text-primary hover:text-primary hover:bg-primary/10 -ml-2 mt-2 h-7"
+                              onClick={() => setIsModalOpen(true)}
                             >
-                              <Plus className="h-4 w-4" />
-                              Adicionar a agenda
-                              <ChevronRight className="h-4 w-4" />
+                              <Plus className="h-3 w-3" />
+                              Adicionar
+                              <ArrowRight className="h-3 w-3" />
                             </Button>
-                          </motion.div>
+                          </div>
+                          
+                          <motion.button
+                            onClick={() => toggleLike(suggestion.id)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              isLiked 
+                                ? "bg-primary/10 text-primary" 
+                                : "text-muted-foreground hover:text-primary hover:bg-secondary"
+                            }`}
+                            whileTap={{ scale: 0.85 }}
+                          >
+                            <Heart className={`h-4 w-4 ${isLiked ? "fill-primary" : ""}`} />
+                          </motion.button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-        </AnimatePresence>
-        
-        {/* Tips Section */}
-        <motion.div 
-          className="mt-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="bg-gradient-to-br from-secondary to-card rounded-2xl p-5 border border-border/50">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Zap className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-medium text-foreground mb-1">Dica do dia</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Nao precisa ser algo grande! As pequenas coisas feitas com carinho 
-                  sao as que mais fortalecem o relacionamento. Um cafe juntos, uma 
-                  caminhada no parque ou ate assistir um filme abracinhos ja conta!
-                </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </AnimatePresence>
+          
+          {/* Tip */}
+          <FadeIn delay={0.4}>
+            <div className="bg-secondary/50 rounded-xl p-4 border border-border/30">
+              <div className="flex items-start gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Lightbulb className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground mb-0.5">Dica</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    As pequenas coisas feitas com carinho fortalecem o relacionamento!
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </FadeIn>
+        </main>
         
-        {/* Quick Stats */}
-        <motion.div 
-          className="mt-6 grid grid-cols-3 gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <div className="text-center p-4 bg-card rounded-xl border border-border/50">
-            <Star className="h-5 w-5 text-gold mx-auto mb-2" />
-            <p className="text-lg font-bold text-foreground">{likedSuggestions.size}</p>
-            <p className="text-xs text-muted-foreground">curtidas</p>
-          </div>
-          <div className="text-center p-4 bg-card rounded-xl border border-border/50">
-            <Sparkles className="h-5 w-5 text-primary mx-auto mb-2" />
-            <p className="text-lg font-bold text-foreground">15</p>
-            <p className="text-xs text-muted-foreground">sugestoes</p>
-          </div>
-          <div className="text-center p-4 bg-card rounded-xl border border-border/50">
-            <RefreshCw className="h-5 w-5 text-warm mx-auto mb-2" />
-            <p className="text-lg font-bold text-foreground">3</p>
-            <p className="text-xs text-muted-foreground">por dia</p>
-          </div>
-        </motion.div>
-      </motion.div>
-      
-      <MobileNav />
+        <MobileNav />
+      </div>
       
       <EventModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setSelectedSuggestion(null)
-        }}
+        onClose={() => setIsModalOpen(false)}
         selectedDate={new Date()}
       />
-    </>
+    </PageTransition>
   )
 }

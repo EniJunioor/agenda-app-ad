@@ -6,9 +6,9 @@ import { getCategoryById } from "@/data/events"
 import { CategoryFilter } from "@/components/agenda/category-filter"
 import { MobileNav } from "@/components/agenda/mobile-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { PageTransition, FadeIn } from "@/components/page-transition"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MapPin, Clock, Calendar, Filter, ChevronRight } from "lucide-react"
+import { MapPin, Clock, Calendar, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { 
@@ -76,216 +76,149 @@ export default function HistoricoPage() {
     return timeStr.replace(":", "h")
   }
   
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  }
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0 }
-  }
-  
   return (
-    <>
-      <motion.div 
-        className="p-4 lg:p-8 pb-24 lg:pb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
+    <PageTransition>
+      <div className="min-h-screen pb-24 lg:pb-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2 lg:hidden">
-          <h1 className="font-serif text-2xl text-foreground">Historico</h1>
-          <ThemeToggle />
-        </div>
-        
-        <motion.p 
-          className="text-muted-foreground mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          Todos os momentos vividos juntos
-        </motion.p>
-        
-        {/* Stats */}
-        <motion.div 
-          className="grid grid-cols-3 gap-3 mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <button
-            onClick={() => setFilter("all")}
-            className={`p-3 rounded-xl border transition-all text-center ${
-              filter === "all" 
-                ? "bg-primary/10 border-primary/30 text-primary" 
-                : "bg-card border-border/50 hover:border-primary/20"
-            }`}
-          >
-            <p className="text-xl font-bold">{stats.total}</p>
-            <p className="text-xs text-muted-foreground">total</p>
-          </button>
-          <button
-            onClick={() => setFilter("past")}
-            className={`p-3 rounded-xl border transition-all text-center ${
-              filter === "past" 
-                ? "bg-primary/10 border-primary/30 text-primary" 
-                : "bg-card border-border/50 hover:border-primary/20"
-            }`}
-          >
-            <p className="text-xl font-bold">{stats.past}</p>
-            <p className="text-xs text-muted-foreground">memorias</p>
-          </button>
-          <button
-            onClick={() => setFilter("upcoming")}
-            className={`p-3 rounded-xl border transition-all text-center ${
-              filter === "upcoming" 
-                ? "bg-primary/10 border-primary/30 text-primary" 
-                : "bg-card border-border/50 hover:border-primary/20"
-            }`}
-          >
-            <p className="text-xl font-bold">{stats.upcoming}</p>
-            <p className="text-xs text-muted-foreground">planejados</p>
-          </button>
-        </motion.div>
-        
-        {/* Category Filter */}
-        <motion.div 
-          className="mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <CategoryFilter />
-        </motion.div>
-        
-        {/* Timeline */}
-        {filteredEvents.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-card rounded-2xl p-8 text-center border border-border/50"
-          >
-            <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
-              <Calendar className="h-6 w-6 text-muted-foreground" />
+        <header className="sticky top-0 z-30 glass border-b border-border/40">
+          <div className="flex items-center justify-between p-4 lg:px-8">
+            <div>
+              <h1 className="font-serif text-xl lg:text-2xl text-foreground">Historico</h1>
+              <p className="text-xs text-muted-foreground hidden lg:block">
+                Todos os momentos vividos juntos
+              </p>
             </div>
-            <p className="text-muted-foreground">
-              Nenhum evento encontrado.
-            </p>
-          </motion.div>
-        ) : (
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-5 lg:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/50 via-border to-border" />
-            
-            <motion.div 
-              className="space-y-4"
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-            >
-              <AnimatePresence>
-                {filteredEvents.map((event, index) => {
-                  const category = getCategoryById(event.category)
-                  if (!category) return null
-                  const Icon = iconMap[category.icon]
-                  const isPast = new Date(event.date + "T00:00:00") < new Date()
-                  
-                  return (
-                    <motion.div
-                      key={event.id}
-                      variants={itemVariants}
-                      layout
-                      className="relative pl-12 lg:pl-14"
-                    >
-                      {/* Timeline dot */}
-                      <motion.div 
-                        className="absolute left-3 lg:left-4 top-4 h-5 w-5 rounded-full border-[3px] border-card flex items-center justify-center shadow-sm"
-                        style={{ backgroundColor: category.bg }}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        {Icon && <Icon className="h-2.5 w-2.5" style={{ color: category.text }} />}
-                      </motion.div>
-                      
-                      <Link href={`/agenda/${event.id}`}>
-                        <Card className={`group overflow-hidden hover:shadow-md transition-all cursor-pointer border-border/50 hover:border-primary/30 ${isPast ? "opacity-90" : ""}`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-3">
-                              {/* Mobile icon */}
-                              <div 
-                                className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 lg:hidden"
-                                style={{ backgroundColor: category.bg }}
-                              >
-                                {Icon && <Icon className="h-5 w-5" style={{ color: category.text }} />}
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                {/* Tags */}
-                                <div className="flex items-center flex-wrap gap-2 mb-1.5">
-                                  <span 
-                                    className="text-xs font-medium px-2 py-0.5 rounded-md"
-                                    style={{ backgroundColor: category.bg, color: category.text }}
-                                  >
-                                    {category.label.split(" / ")[0]}
-                                  </span>
-                                  {!isPast && (
-                                    <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-primary/10 text-primary">
-                                      Proximo
-                                    </span>
-                                  )}
-                                </div>
-                                
-                                {/* Title */}
-                                <h3 className="font-serif text-base lg:text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                                  {event.title}
-                                </h3>
-                                
-                                {/* Info */}
-                                <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-muted-foreground">
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    {formatDate(event.date)}
-                                  </span>
-                                  <span className="text-border">|</span>
-                                  <span>{formatTime(event.time)}</span>
-                                </div>
-                                
-                                {/* Reactions */}
-                                {event.reactions.length > 0 && (
-                                  <div className="flex items-center gap-1.5 mt-2">
-                                    {event.reactions.map((reaction, idx) => (
-                                      <span 
-                                        key={idx}
-                                        className="text-sm bg-secondary/70 px-1.5 py-0.5 rounded-md"
-                                        title={`${reaction.partner}: ${reaction.comment}`}
-                                      >
-                                        {reaction.emoji}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    </motion.div>
-                  )
-                })}
-              </AnimatePresence>
-            </motion.div>
+            <ThemeToggle />
           </div>
-        )}
-      </motion.div>
-      
-      <MobileNav />
-    </>
+        </header>
+        
+        <main className="p-4 lg:p-8 space-y-5">
+          {/* Stats */}
+          <FadeIn delay={0.1}>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: "all", value: stats.total, label: "total" },
+                { key: "past", value: stats.past, label: "memorias" },
+                { key: "upcoming", value: stats.upcoming, label: "planejados" }
+              ].map((stat) => (
+                <motion.button
+                  key={stat.key}
+                  onClick={() => setFilter(stat.key as FilterType)}
+                  className={`p-3 rounded-xl border transition-all text-center ${
+                    filter === stat.key 
+                      ? "bg-primary/10 border-primary/30" 
+                      : "bg-card border-border/50 hover:border-primary/20"
+                  }`}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <p className={`text-lg font-bold ${filter === stat.key ? "text-primary" : "text-foreground"}`}>
+                    {stat.value}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                </motion.button>
+              ))}
+            </div>
+          </FadeIn>
+          
+          {/* Category Filter */}
+          <FadeIn delay={0.15}>
+            <CategoryFilter />
+          </FadeIn>
+          
+          {/* Timeline */}
+          {filteredEvents.length === 0 ? (
+            <FadeIn delay={0.2}>
+              <div className="bg-card rounded-2xl p-8 text-center border border-border/50">
+                <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
+                  <Calendar className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Nenhum evento encontrado
+                </p>
+              </div>
+            </FadeIn>
+          ) : (
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-border to-transparent" />
+              
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {filteredEvents.map((event, index) => {
+                    const category = getCategoryById(event.category)
+                    if (!category) return null
+                    const Icon = iconMap[category.icon]
+                    const isPast = new Date(event.date + "T00:00:00") < new Date()
+                    
+                    return (
+                      <motion.div
+                        key={event.id}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 + index * 0.04 }}
+                        layout
+                        className="relative pl-10"
+                      >
+                        {/* Timeline dot */}
+                        <motion.div 
+                          className="absolute left-2 top-4 h-4 w-4 rounded-full border-2 border-card"
+                          style={{ backgroundColor: category.text }}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.25 + index * 0.04 }}
+                        />
+                        
+                        <Link href={`/agenda/${event.id}`}>
+                          <Card className={`group overflow-hidden hover:shadow-md transition-all cursor-pointer border-border/50 hover:border-primary/30 ${isPast ? "opacity-85" : ""}`}>
+                            <CardContent className="p-3">
+                              <div className="flex items-center gap-3">
+                                <div 
+                                  className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0"
+                                  style={{ backgroundColor: category.bg }}
+                                >
+                                  {Icon && <Icon className="h-4 w-4" style={{ color: category.text }} />}
+                                </div>
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span 
+                                      className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                                      style={{ backgroundColor: category.bg, color: category.text }}
+                                    >
+                                      {category.label.split(" / ")[0]}
+                                    </span>
+                                    {!isPast && (
+                                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                                        Proximo
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  <h3 className="font-medium text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                                    {event.title}
+                                  </h3>
+                                  
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {formatDate(event.date)} - {formatTime(event.time)}
+                                  </p>
+                                </div>
+                                
+                                <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      </motion.div>
+                    )
+                  })}
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
+        </main>
+        
+        <MobileNav />
+      </div>
+    </PageTransition>
   )
 }
