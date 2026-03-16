@@ -3,58 +3,60 @@
 import { useAgenda } from "@/context/agenda-context"
 import { Heart } from "lucide-react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 
-export function CoupleHeader() {
+interface CoupleHeaderProps {
+  size?: "sm" | "lg"
+  showLink?: boolean
+}
+
+export function CoupleHeader({ size = "sm", showLink = true }: CoupleHeaderProps) {
   const { couple } = useAgenda()
   
-  const getInitials = (name: string) => {
-    return name.charAt(0).toUpperCase()
-  }
-  
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="flex items-center gap-2">
-        <motion.div 
-          className="relative"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-        >
-          <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-serif text-lg font-semibold">
-            {getInitials(couple.partner1)}
-          </div>
-          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-card animate-pulse" />
-        </motion.div>
+  const content = (
+    <motion.div 
+      className={`flex items-center gap-3 ${showLink ? "cursor-pointer group" : ""}`}
+      whileHover={showLink ? { x: 2 } : undefined}
+    >
+      <div className="relative">
+        {/* Avatar stack */}
+        <div className="flex -space-x-2">
+          <motion.div 
+            className={`${size === "lg" ? "h-12 w-12" : "h-10 w-10"} rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-medium text-sm ring-2 ring-card`}
+            whileHover={{ scale: 1.05, zIndex: 10 }}
+          >
+            {couple.partner1.charAt(0)}
+          </motion.div>
+          <motion.div 
+            className={`${size === "lg" ? "h-12 w-12" : "h-10 w-10"} rounded-full bg-gradient-to-br from-warm to-gold flex items-center justify-center text-foreground font-medium text-sm ring-2 ring-card`}
+            whileHover={{ scale: 1.05, zIndex: 10 }}
+          >
+            {couple.partner2.charAt(0)}
+          </motion.div>
+        </div>
         
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-        >
-          <Heart className="h-5 w-5 text-primary fill-primary" />
-        </motion.div>
-        
+        {/* Heart connector */}
         <motion.div 
-          className="relative"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-5 w-5 rounded-full bg-card flex items-center justify-center"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
-          <div className="h-12 w-12 rounded-full bg-accent/30 flex items-center justify-center text-accent-foreground font-serif text-lg font-semibold">
-            {getInitials(couple.partner2)}
-          </div>
-          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-500 border-2 border-card animate-pulse" />
+          <Heart className="h-3 w-3 text-primary fill-primary" />
         </motion.div>
       </div>
       
-      <motion.h2 
-        className="font-serif text-xl text-foreground text-balance text-center"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        {couple.name}
-      </motion.h2>
-    </div>
+      <div className="min-w-0">
+        <p className={`font-serif ${size === "lg" ? "text-xl" : "text-base"} text-foreground truncate group-hover:text-primary transition-colors`}>
+          {couple.name}
+        </p>
+        <p className="text-xs text-muted-foreground">Nossa Agenda</p>
+      </div>
+    </motion.div>
   )
+  
+  if (showLink) {
+    return <Link href="/casal">{content}</Link>
+  }
+  
+  return content
 }

@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { useAgenda } from "@/context/agenda-context"
 import { AppSidebar } from "@/components/agenda/app-sidebar"
+import { motion } from "framer-motion"
 
 export default function AppLayout({
   children,
@@ -11,21 +11,25 @@ export default function AppLayout({
   children: React.ReactNode
 }) {
   const { isLoggedIn, login } = useAgenda()
-  const router = useRouter()
   
   useEffect(() => {
     // Auto-login for demo purposes
     if (!isLoggedIn) {
-      login("João & Maria")
+      login("Joao & Maria")
     }
   }, [isLoggedIn, login])
   
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <AppSidebar />
-      <main className="flex-1 pb-20 lg:pb-0">
+      <motion.main 
+        className="flex-1 min-w-0 overflow-x-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         {children}
-      </main>
+      </motion.main>
     </div>
   )
 }

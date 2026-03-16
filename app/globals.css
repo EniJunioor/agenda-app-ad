@@ -4,43 +4,83 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #FDF8F5;
-  --foreground: #2D1B1B;
+  --background: #FFFBF8;
+  --foreground: #1a1a1a;
   --card: #FFFFFF;
-  --card-foreground: #2D1B1B;
+  --card-foreground: #1a1a1a;
   --popover: #FFFFFF;
-  --popover-foreground: #2D1B1B;
-  --primary: #E07A7A;
+  --popover-foreground: #1a1a1a;
+  --primary: #E07070;
   --primary-foreground: #FFFFFF;
-  --secondary: #FAF5F0;
-  --secondary-foreground: #2D1B1B;
-  --muted: #FAF5F0;
-  --muted-foreground: #7A5C5C;
-  --accent: #F0A87A;
-  --accent-foreground: #2D1B1B;
-  --destructive: #DC2626;
+  --secondary: #FEF2F0;
+  --secondary-foreground: #1a1a1a;
+  --muted: #F5F0EE;
+  --muted-foreground: #6B5E5E;
+  --accent: #F4A8A0;
+  --accent-foreground: #1a1a1a;
+  --destructive: #E53935;
   --destructive-foreground: #FFFFFF;
-  --border: #EFE0D8;
-  --input: #EFE0D8;
-  --ring: #E07A7A;
+  --border: #F0E4E0;
+  --input: #F0E4E0;
+  --ring: #E07070;
   --radius: 1rem;
   
-  /* Custom romantic palette */
-  --surface: #FFFFFF;
-  --surface-muted: #FAF5F0;
-  --primary-dark: #C45E5E;
-  --text-primary: #2D1B1B;
-  --text-secondary: #7A5C5C;
-  --text-muted: #B09090;
+  /* Extended palette */
+  --love: #E07070;
+  --love-light: #FFF0EF;
+  --love-muted: #FADADF;
+  --warm: #F8B4A8;
+  --warm-light: #FFF5F2;
+  --gold: #E8B86D;
+  --gold-light: #FFF8EB;
   
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #2D1B1B;
-  --sidebar-primary: #E07A7A;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #E07070;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #FAF5F0;
-  --sidebar-accent-foreground: #2D1B1B;
-  --sidebar-border: #EFE0D8;
-  --sidebar-ring: #E07A7A;
+  --sidebar-accent: #FEF2F0;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #F0E4E0;
+  --sidebar-ring: #E07070;
+}
+
+.dark {
+  --background: #0F0D0D;
+  --foreground: #F5F0EE;
+  --card: #1A1616;
+  --card-foreground: #F5F0EE;
+  --popover: #1A1616;
+  --popover-foreground: #F5F0EE;
+  --primary: #E88888;
+  --primary-foreground: #0F0D0D;
+  --secondary: #241E1E;
+  --secondary-foreground: #F5F0EE;
+  --muted: #2A2424;
+  --muted-foreground: #A89898;
+  --accent: #D4706C;
+  --accent-foreground: #F5F0EE;
+  --destructive: #E53935;
+  --destructive-foreground: #FFFFFF;
+  --border: #2A2424;
+  --input: #2A2424;
+  --ring: #E88888;
+  
+  --love: #E88888;
+  --love-light: #2A1F1F;
+  --love-muted: #3A2828;
+  --warm: #D4706C;
+  --warm-light: #2A1F1F;
+  --gold: #D4A860;
+  --gold-light: #2A2418;
+  
+  --sidebar: #1A1616;
+  --sidebar-foreground: #F5F0EE;
+  --sidebar-primary: #E88888;
+  --sidebar-primary-foreground: #0F0D0D;
+  --sidebar-accent: #241E1E;
+  --sidebar-accent-foreground: #F5F0EE;
+  --sidebar-border: #2A2424;
+  --sidebar-ring: #E88888;
 }
 
 @theme inline {
@@ -77,6 +117,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-love: var(--love);
+  --color-love-light: var(--love-light);
+  --color-love-muted: var(--love-muted);
+  --color-warm: var(--warm);
+  --color-warm-light: var(--warm-light);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
 }
 
 @layer base {
@@ -84,9 +131,47 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-blend-mode: overlay;
-    background-size: 200px;
+    @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Glass effect utility */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(26, 22, 22, 0.85);
 }
