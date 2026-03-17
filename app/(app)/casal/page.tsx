@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react"
 import { useAgenda } from "@/context/agenda-context"
 import { MobileNav } from "@/components/agenda/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { PageTransition, FadeIn } from "@/components/page-transition"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +17,9 @@ import {
   Check, 
   X,
   Sparkles,
-  Clock
+  Clock,
+  Bell,
+  Search
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -64,11 +65,14 @@ export default function CasalPage() {
   
   return (
     <PageTransition>
-      <div className="min-h-screen pb-24 lg:pb-8">
+      <div className="min-h-screen pb-16 lg:pb-6">
         {/* Header */}
         <header className="sticky top-0 z-30 glass border-b border-border/40">
           <div className="flex items-center justify-between p-4 lg:px-8">
-            <h1 className="font-serif text-xl text-foreground">Nosso Perfil</h1>
+            <div>
+              <h1 className="font-serif text-xl lg:text-2xl text-foreground">Nosso Perfil</h1>
+              <p className="text-sm text-muted-foreground hidden lg:block">O perfil do nosso casal</p>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -78,29 +82,36 @@ export default function CasalPage() {
               >
                 {isEditing ? <X className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
               </Button>
-              <ThemeToggle />
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Notificações">
+                <Bell className="h-5 w-5 text-muted-foreground" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Pesquisar">
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </Button>
             </div>
           </div>
         </header>
         
-        <main className="p-4 lg:p-8 max-w-3xl mx-auto space-y-5">
+        <main className="p-4 lg:p-6 max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-4 lg:gap-5">
+            <div className="space-y-4">
           {/* Profile Card */}
           <FadeIn delay={0.1}>
             <Card className="overflow-hidden border-border/50">
-              <div className="h-24 bg-gradient-to-br from-primary/20 via-accent/15 to-warm/20" />
+              <div className="h-24 bg-linear-to-br from-primary/20 via-accent/15 to-warm/20" />
               
-              <CardContent className="relative pt-0 -mt-10 pb-5 px-5">
+              <CardContent className="relative pt-0 -mt-9 pb-4 px-5">
                 {/* Avatars */}
-                <div className="flex justify-center mb-4">
+                <div className="flex justify-center mb-3">
                   <div className="relative flex -space-x-3">
                     <motion.div 
-                      className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-serif text-xl ring-3 ring-card"
+                      className="h-14 w-14 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-serif text-lg ring-3 ring-card"
                       whileHover={{ scale: 1.05, zIndex: 10 }}
                     >
                       {couple.partner1.charAt(0)}
                     </motion.div>
                     <motion.div 
-                      className="h-16 w-16 rounded-full bg-gradient-to-br from-warm to-gold flex items-center justify-center text-foreground font-serif text-xl ring-3 ring-card"
+                      className="h-14 w-14 rounded-full bg-linear-to-br from-warm to-gold flex items-center justify-center text-foreground font-serif text-lg ring-3 ring-card"
                       whileHover={{ scale: 1.05, zIndex: 10 }}
                     >
                       {couple.partner2.charAt(0)}
@@ -159,7 +170,7 @@ export default function CasalPage() {
                       exit={{ opacity: 0 }}
                       className="text-center"
                     >
-                      <h2 className="font-serif text-xl text-foreground mb-1">
+                      <h2 className="font-serif text-lg lg:text-xl text-foreground mb-1">
                         {couple.name}
                       </h2>
                       {couple.startDate && (
@@ -185,7 +196,7 @@ export default function CasalPage() {
               {stats.daysTogether > 0 && (
                 <motion.div
                   whileHover={{ y: -2 }}
-                  className="bg-gradient-to-br from-love-light to-card rounded-xl p-4 border border-primary/15"
+                  className="bg-linear-to-br from-love-light to-card rounded-xl p-3.5 border border-primary/15"
                 >
                   <Heart className="h-4 w-4 text-primary mb-2" />
                   <p className="text-xl font-bold text-foreground">{stats.daysTogether}</p>
@@ -195,7 +206,7 @@ export default function CasalPage() {
               
               <motion.div
                 whileHover={{ y: -2 }}
-                className="bg-gradient-to-br from-gold-light to-card rounded-xl p-4 border border-gold/15"
+                className="bg-linear-to-br from-gold-light to-card rounded-xl p-3.5 border border-gold/15"
               >
                 <Star className="h-4 w-4 text-gold mb-2" />
                 <p className="text-xl font-bold text-foreground">{stats.pastEvents}</p>
@@ -204,7 +215,7 @@ export default function CasalPage() {
               
               <motion.div
                 whileHover={{ y: -2 }}
-                className="bg-gradient-to-br from-warm-light to-card rounded-xl p-4 border border-warm/15"
+                className="bg-linear-to-br from-warm-light to-card rounded-xl p-3.5 border border-warm/15"
               >
                 <Clock className="h-4 w-4 text-warm mb-2" />
                 <p className="text-xl font-bold text-foreground">{stats.upcomingEvents}</p>
@@ -213,7 +224,7 @@ export default function CasalPage() {
               
               <motion.div
                 whileHover={{ y: -2 }}
-                className="bg-card rounded-xl p-4 border border-border/50"
+                className="bg-card rounded-xl p-3.5 border border-border/50"
               >
                 <Sparkles className="h-4 w-4 text-accent mb-2" />
                 <p className="text-xl font-bold text-foreground">{stats.totalReactions}</p>
@@ -226,7 +237,7 @@ export default function CasalPage() {
           {stats.topCategory && (
             <FadeIn delay={0.2}>
               <Card className="border-border/50">
-                <CardContent className="p-4">
+                <CardContent className="p-3.5">
                   <p className="text-xs text-muted-foreground mb-2">Categoria favorita</p>
                   <div className="flex items-center gap-2">
                     {(() => {
@@ -252,11 +263,12 @@ export default function CasalPage() {
               </Card>
             </FadeIn>
           )}
+            </div>
           
           {/* Milestones */}
           <FadeIn delay={0.25}>
-            <div>
-              <h3 className="text-sm font-medium text-foreground mb-3">Marcos</h3>
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-foreground">Marcos</h3>
               <div className="space-y-2">
                 {[
                   { days: 100, label: "100 dias juntos" },
@@ -306,6 +318,8 @@ export default function CasalPage() {
               </div>
             </div>
           </FadeIn>
+            </div>
+          </div>
         </main>
         
         <MobileNav />

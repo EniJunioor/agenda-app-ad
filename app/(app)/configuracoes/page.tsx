@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useAgenda } from "@/context/agenda-context"
 import { MobileNav } from "@/components/agenda/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { PageTransition, FadeIn } from "@/components/page-transition"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,18 +19,23 @@ import {
   Bell, 
   Shield, 
   HelpCircle,
-  ArrowRight,
-  Check
+  Check,
+  UserPlus,
+  Mail,
+  Search
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function ConfiguracoesPage() {
-  const { couple, setCouple, logout } = useAgenda()
+  const { couple, setCouple, logout, user } = useAgenda()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const [coupleName, setCoupleName] = useState(couple.name)
   const [saved, setSaved] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [partnerEmail, setPartnerEmail] = useState("")
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteMessage, setInviteMessage] = useState<{ type: "success" | "error"; text: string; link?: string } | null>(null)
   
   useEffect(() => {
     setMounted(true)
@@ -49,165 +53,222 @@ export default function ConfiguracoesPage() {
     setTimeout(() => setSaved(false), 2000)
   }
   
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     router.push("/")
   }
   
   return (
     <PageTransition>
-      <div className="min-h-screen pb-24 lg:pb-8">
-        {/* Header */}
-        <header className="sticky top-0 z-30 glass border-b border-border/40">
-          <div className="flex items-center justify-between p-4 lg:px-8">
-            <h1 className="font-serif text-xl text-foreground">Configuracoes</h1>
-            <ThemeToggle />
-          </div>
-        </header>
-        
-        <main className="p-4 lg:p-8 max-w-2xl space-y-4">
-          {/* Couple Info */}
-          <FadeIn delay={0.1}>
-            <Card className="border-border/50">
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                  <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Heart className="h-3.5 w-3.5 text-primary" />
+      <div className="min-h-screen pb-12 lg:pb-4">
+        <main className="p-4 lg:p-6 max-w-3xl mx-auto space-y-6">
+          {/* PERFIL */}
+          <div className="space-y-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Perfil</p>
+
+              <FadeIn delay={0.05}>
+              <Card className="border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden">
+                <CardHeader className="px-5 py-3.5 border-b border-border/40">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Heart className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Nome do casal</CardTitle>
+                      <p className="text-xs text-muted-foreground">Como a agenda de vocês é identificada</p>
+                    </div>
                   </div>
-                  Nome do casal
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4 space-y-3">
-                <Input
-                  value={coupleName}
-                  onChange={e => setCoupleName(e.target.value)}
-                  placeholder="Ex: Joao & Maria"
-                  className="bg-secondary/30 h-9 text-sm"
-                />
-                <Button onClick={handleSave} size="sm" className="gap-1.5">
-                  <AnimatePresence mode="wait">
-                    {saved ? (
-                      <motion.span
-                        key="saved"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center gap-1.5"
-                      >
-                        <Check className="h-3.5 w-3.5" />
-                        Salvo
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="save"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center gap-1.5"
-                      >
-                        <Save className="h-3.5 w-3.5" />
-                        Salvar
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Button>
-              </CardContent>
-            </Card>
-          </FadeIn>
-          
-          {/* Appearance */}
-          <FadeIn delay={0.15}>
-            <Card className="border-border/50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Tema</p>
-                    <p className="text-xs text-muted-foreground">
-                      {mounted ? (theme === "dark" ? "Modo escuro" : "Modo claro") : "Carregando..."}
-                    </p>
+                </CardHeader>
+                <CardContent className="px-5 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <Input
+                      value={coupleName}
+                      onChange={e => setCoupleName(e.target.value)}
+                      placeholder="Ex: Junior e Beatriz"
+                      className="bg-secondary/30 h-10 text-sm"
+                    />
+                    <Button onClick={handleSave} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+                      <AnimatePresence mode="wait">
+                        {saved ? (
+                          <motion.span key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                            <Check className="h-4 w-4" />
+                            Salvar
+                          </motion.span>
+                        ) : (
+                          <motion.span key="save" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                            <Check className="h-4 w-4 opacity-0" />
+                            Salvar
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </Button>
                   </div>
-                  {mounted && (
-                    <div className="flex items-center gap-1 p-1 bg-secondary rounded-lg">
-                      <button
-                        onClick={() => setTheme("light")}
-                        className={`p-2 rounded-md transition-colors ${
-                          theme === "light" ? "bg-card shadow-sm" : "hover:bg-card/50"
-                        }`}
-                      >
-                        <Sun className={`h-4 w-4 ${theme === "light" ? "text-gold" : "text-muted-foreground"}`} />
-                      </button>
-                      <button
-                        onClick={() => setTheme("dark")}
-                        className={`p-2 rounded-md transition-colors ${
-                          theme === "dark" ? "bg-card shadow-sm" : "hover:bg-card/50"
-                        }`}
-                      >
-                        <Moon className={`h-4 w-4 ${theme === "dark" ? "text-primary" : "text-muted-foreground"}`} />
-                      </button>
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Use o formato: Nome1 & Nome2 ou Nome1 e Nome2
+                  </p>
+                </CardContent>
+              </Card>
+            </FadeIn>
+
+              <FadeIn delay={0.08}>
+              <Card className="border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden">
+                <CardHeader className="px-5 py-3.5 border-b border-border/40">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <UserPlus className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Parceira(o)</CardTitle>
+                      <p className="text-xs text-muted-foreground">Convide seu par para compartilhar a agenda</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-5 py-3.5 space-y-2.5">
+                  <div className="flex items-center justify-between rounded-xl border border-border/40 bg-secondary/20 px-4 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
+                        {(couple.partner2 || couple.partner1 || " ").charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{couple.partner2 || "Beatriz"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email ?? "—"}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600">
+                      Conectada
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="email"
+                      placeholder="Convidar outro email..."
+                      value={partnerEmail}
+                      onChange={e => { setPartnerEmail(e.target.value); setInviteMessage(null) }}
+                      className="bg-secondary/30 h-10 text-sm"
+                    />
+                    <Button
+                      className="h-10 px-4 rounded-xl bg-primary/15 text-primary hover:bg-primary/20"
+                      disabled={!partnerEmail || inviteLoading}
+                      onClick={async () => {
+                        setInviteMessage(null)
+                        setInviteLoading(true)
+                        try {
+                          const res = await fetch("/api/auth/invite-partner", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ partnerEmail }),
+                          })
+                          const data = await res.json()
+                          if (!res.ok) {
+                            setInviteMessage({ type: "error", text: data?.error ?? "Erro ao enviar convite." })
+                            return
+                          }
+                          setInviteMessage({
+                            type: "success",
+                            text: data.emailSent ? "Convite enviado por email!" : "Convite criado.",
+                            link: data.inviteLink,
+                          })
+                          setPartnerEmail("")
+                        } catch {
+                          setInviteMessage({ type: "error", text: "Erro de conexão." })
+                        } finally {
+                          setInviteLoading(false)
+                        }
+                      }}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      {inviteLoading ? "Enviando" : "Enviar"}
+                    </Button>
+                  </div>
+
+                  {inviteMessage && (
+                    <div className={`text-xs rounded-xl p-3 ${inviteMessage.type === "success" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
+                      {inviteMessage.text}
+                      {inviteMessage.link && <p className="mt-2 break-all">Link: {inviteMessage.link}</p>}
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          </FadeIn>
-          
-          {/* Other Settings */}
-          <FadeIn delay={0.2}>
-            <Card className="border-border/50">
-              <CardContent className="p-0">
-                {[
-                  { icon: Bell, label: "Notificacoes", disabled: true },
-                  { icon: Shield, label: "Privacidade", disabled: true },
-                  { icon: HelpCircle, label: "Ajuda", disabled: true },
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    disabled={item.disabled}
-                    className="w-full flex items-center gap-3 p-3.5 hover:bg-secondary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-b border-border/30 last:border-0"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                      <item.icon className="h-4 w-4 text-muted-foreground" />
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </div>
+
+          {/* APARÊNCIA */}
+          <div className="space-y-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aparência</p>
+            <FadeIn delay={0.12}>
+              <Card className="border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden">
+                <CardHeader className="px-5 py-3.5 border-b border-border/40">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Sun className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="flex-1 text-left text-sm font-medium text-foreground">{item.label}</span>
-                    {item.disabled && (
-                      <span className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">
-                        Em breve
-                      </span>
-                    )}
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                ))}
-              </CardContent>
-            </Card>
-          </FadeIn>
-          
-          {/* Logout */}
-          <FadeIn delay={0.25}>
-            <Button 
-              variant="ghost" 
-              className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 w-full justify-start text-sm"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4" />
-              Sair da conta
-            </Button>
-          </FadeIn>
-          
-          {/* Footer */}
-          <FadeIn delay={0.3}>
-            <div className="text-center pt-4">
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 mb-2"
-              >
-                <Heart className="h-4 w-4 text-primary fill-primary" />
-              </motion.div>
-              <p className="text-xs text-muted-foreground">
-                Nossa Agenda v2.0
-              </p>
-            </div>
-          </FadeIn>
+                    <div>
+                      <CardTitle className="text-sm font-semibold">Tema</CardTitle>
+                      <p className="text-xs text-muted-foreground">Escolha o visual da sua agenda</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-5 py-3.5">
+                  {mounted ? (
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { key: "light", label: "Claro", preview: "bg-white" },
+                        { key: "dark", label: "Escuro", preview: "bg-[#1a1a1a]" },
+                        { key: "system", label: "Automático", preview: "bg-gradient-to-br from-white to-[#1a1a1a]" },
+                      ].map((opt) => {
+                        const active = theme === opt.key
+                        return (
+                          <button
+                            key={opt.key}
+                            type="button"
+                            onClick={() => setTheme(opt.key)}
+                            className={`rounded-xl border p-3 text-center transition-colors ${
+                              active ? "border-primary bg-primary/5" : "border-border/40 hover:bg-secondary/20"
+                            }`}
+                          >
+                            <div className={`mx-auto h-10 w-16 rounded-lg ${opt.preview} border border-border/40 relative overflow-hidden`}>
+                              <span className="absolute bottom-2 right-2 h-2 w-2 rounded-full bg-primary" />
+                            </div>
+                            <p className={`mt-2 text-xs font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>{opt.label}</p>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Carregando…</p>
+                  )}
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </div>
+
+          {/* MAIS OPÇÕES */}
+          <div className="space-y-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Mais opções</p>
+            <FadeIn delay={0.16}>
+              <Card className="border border-border/50 bg-card/60 backdrop-blur-sm overflow-hidden">
+                <CardContent className="p-0">
+                  {[
+                    { icon: Bell, title: "Notificações", desc: "Alertas de eventos e datas especiais" },
+                    { icon: Shield, title: "Privacidade", desc: "Controle de dados e visibilidade" },
+                    { icon: HelpCircle, title: "Ajuda e suporte", desc: "Dúvidas e central de ajuda" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 px-5 py-3.5 border-b border-border/30 last:border-0">
+                      <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <item.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.desc}</p>
+                      </div>
+                      <span className="text-[11px] px-3 py-1 rounded-full bg-secondary/40 text-muted-foreground">Em breve</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </div>
         </main>
         
         <MobileNav />

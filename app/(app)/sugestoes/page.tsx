@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useAgenda } from "@/context/agenda-context"
 import { MobileNav } from "@/components/agenda/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { PageTransition, FadeIn } from "@/components/page-transition"
 import { EventModal } from "@/components/agenda/event-modal"
 import { Button } from "@/components/ui/button"
@@ -16,7 +15,9 @@ import {
   Plus,
   ArrowRight,
   Heart,
-  Lightbulb
+  Lightbulb,
+  Bell,
+  Search
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
@@ -78,7 +79,7 @@ export default function SugestoesPage() {
                 <Sparkles className="h-4 w-4 text-gold" />
               </div>
               <div>
-                <h1 className="font-serif text-xl text-foreground">Sugestoes</h1>
+                <h1 className="font-serif text-xl lg:text-2xl text-foreground">Sugestões</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -92,7 +93,12 @@ export default function SugestoesPage() {
                 <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
                 <span className="hidden sm:inline">Novas</span>
               </Button>
-              <ThemeToggle />
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Notificações">
+                <Bell className="h-5 w-5 text-muted-foreground" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Pesquisar">
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </Button>
             </div>
           </div>
         </header>

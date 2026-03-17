@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAgenda } from "@/context/agenda-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,18 +22,43 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLogin, setIsLogin] = useState(false)
-  const { login, isLoggedIn } = useAgenda()
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const { setSessionFromUser, isLoggedIn } = useAgenda()
   const router = useRouter()
-  
+  const searchParams = useSearchParams()
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    const err = searchParams.get("error")
+    if (err) setError(decodeURIComponent(err))
+  }, [searchParams])
+
   useEffect(() => {
     if (isLoggedIn) {
       router.push("/agenda")
     }
   }, [isLoggedIn, router])
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    login(coupleName)
+    setError("")
+    const form = formRef.current
+    if (!form) return
+    if (!email.trim() || !password.trim()) {
+      setError("Preencha email e senha.")
+      return
+    }
+    if (!isLogin && !coupleName.trim()) {
+      setError("Preencha o nome do casal.")
+      return
+    }
+    setLoading(true)
+    const url = isLogin ? "/api/auth/login" : "/api/auth/register"
+    form.action = url
+    form.method = "POST"
+    console.log("[client:login] Enviando form POST para", url, "(navegação completa)")
+    form.submit()
   }
   
   if (isLoggedIn) {
@@ -177,30 +202,39 @@ export default function LoginPage() {
               </p>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="coupleName" className="text-foreground font-medium">
-                  Nome do casal
-                </Label>
-                <Input
-                  id="coupleName"
-                  placeholder="Ex: Joao & Maria"
-                  value={coupleName}
-                  onChange={e => setCoupleName(e.target.value)}
-                  required
-                  className="h-12 bg-secondary/30 border-border/50 focus:border-primary transition-colors"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use o formato: Nome1 & Nome2
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+              {error && (
+                <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-3">
+                  {error}
                 </p>
-              </div>
-              
+              )}
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="coupleName" className="text-foreground font-medium">
+                    Nome do casal
+                  </Label>
+                  <Input
+                    id="coupleName"
+                    name="coupleName"
+                    placeholder="Ex: Joao & Maria"
+                    value={coupleName}
+                    onChange={e => setCoupleName(e.target.value)}
+                    required={!isLogin}
+                    className="h-12 bg-secondary/30 border-border/50 focus:border-primary transition-colors"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Use o formato: Nome1 & Nome2
+                  </p>
+                </div>
+              )}
+              {!isLogin && <input type="hidden" name="name" value={coupleName.split("&")[0]?.trim() || email} readOnly />}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-medium">
                   Email
                 </Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="casal@email.com"
                   value={email}
@@ -216,6 +250,7 @@ export default function LoginPage() {
                 </Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="Sua senha secreta"
                   value={password}
@@ -231,9 +266,10 @@ export default function LoginPage() {
               >
                 <Button 
                   type="submit" 
+                  disabled={loading}
                   className="w-full h-12 text-base font-medium gap-2 group"
                 >
-                  {isLogin ? "Entrar" : "Criar nossa agenda"}
+                  {loading ? "Aguarde..." : isLogin ? "Entrar" : "Criar nossa agenda"}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </motion.div>

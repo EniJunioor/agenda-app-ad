@@ -1,6 +1,6 @@
 "use client"
 
-import { categories, Category } from "@/data/events"
+import { categories } from "@/data/events"
 import { useAgenda } from "@/context/agenda-context"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -37,12 +37,18 @@ export function CategoryFilter() {
         whileTap={{ scale: 0.98 }}
         onClick={() => setSelectedCategory(null)}
         className={cn(
-          "inline-flex items-center h-8 px-3 rounded-full text-sm font-medium transition-all",
+          "inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-all",
           selectedCategory === null
             ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            : "bg-card border border-border text-foreground hover:bg-muted"
         )}
       >
+        <span
+          className={cn(
+            "h-1.5 w-1.5 rounded-full shrink-0",
+            selectedCategory === null ? "bg-primary-foreground" : "bg-muted-foreground"
+          )}
+        />
         Todos
       </motion.button>
       
@@ -57,18 +63,13 @@ export function CategoryFilter() {
             whileTap={{ scale: 0.98 }}
             onClick={() => setSelectedCategory(isSelected ? null : category.id)}
             className={cn(
-              "inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm font-medium transition-all",
+              "inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-all border",
               isSelected
-                ? "ring-2 ring-offset-1"
-                : "hover:opacity-80"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card border border-border text-foreground hover:bg-muted dark:border-white/20"
             )}
-            style={{ 
-              backgroundColor: category.bg, 
-              color: category.text,
-              ringColor: isSelected ? category.text : undefined
-            }}
           >
-            {Icon && <Icon className="h-3.5 w-3.5" />}
+            {Icon && <Icon className="h-4 w-4 shrink-0" />}
             <span className="hidden sm:inline">{category.label}</span>
           </motion.button>
         )

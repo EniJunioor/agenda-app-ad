@@ -7,28 +7,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { 
-  Music, 
-  Film, 
-  UtensilsCrossed, 
-  Heart, 
-  Users, 
-  Plane, 
-  TreePine, 
-  Cake,
-  LucideIcon
-} from "lucide-react"
-
-const iconMap: Record<string, LucideIcon> = {
-  Music,
-  Film,
-  UtensilsCrossed,
-  Heart,
-  Users,
-  Plane,
-  TreePine,
-  Cake
-}
 
 interface CalendarGridProps {
   onDayClick: (date: Date) => void
@@ -39,7 +17,7 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
   const [direction, setDirection] = useState(0)
   const { events, selectedCategory } = useAgenda()
   
-  const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+  const weekDays = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
   
   const filteredEvents = useMemo(() => {
     if (!selectedCategory) return events
@@ -95,11 +73,9 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
     return date.toDateString() === today.toDateString()
   }
   
-  const monthYear = currentDate.toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric"
-  })
-  
+  const monthStr = currentDate.toLocaleDateString("pt-BR", { month: "long" })
+  const yearStr = currentDate.getFullYear().toString()
+
   const slideVariants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 30 : -30,
@@ -116,72 +92,71 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
   }
   
   return (
-    <div className="bg-card rounded-2xl lg:rounded-3xl p-4 lg:p-6 shadow-sm border border-border/50">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 lg:mb-6">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+    <div className="bg-card rounded-xl lg:rounded-2xl p-5 lg:p-6 border border-border">
+      {/* Header: Março (coral) + 2026 (branco) | Hoje (outline coral) */}
+      <div className="flex items-center justify-between mb-5 lg:mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={goToPrevMonth}
-          className="h-10 w-10 rounded-xl hover:bg-secondary"
+          className="h-9 w-9 rounded-lg hover:bg-muted text-foreground"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-3 flex-1 justify-center min-w-0">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.h2
-              key={monthYear}
+              key={`${monthStr}-${yearStr}`}
               custom={direction}
               variants={slideVariants}
               initial="enter"
               animate="center"
               exit="exit"
               transition={{ duration: 0.25 }}
-              className="font-serif text-lg lg:text-xl capitalize text-foreground"
+              className="text-lg lg:text-xl font-bold capitalize flex items-baseline gap-1.5"
             >
-              {monthYear}
+              <span className="text-primary">{monthStr}</span>
+              <span className="text-foreground">{yearStr}</span>
             </motion.h2>
           </AnimatePresence>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="outline"
             size="sm"
             onClick={goToToday}
-            className="text-xs text-primary hover:bg-primary/10 rounded-lg"
+            className="text-xs font-medium rounded-full border-2 border-primary text-primary bg-card hover:bg-muted shrink-0 px-4 py-1.5 h-8"
           >
             Hoje
           </Button>
         </div>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
+
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={goToNextMonth}
-          className="h-10 w-10 rounded-xl hover:bg-secondary"
+          className="h-9 w-9 rounded-lg hover:bg-muted text-foreground"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
-      
-      {/* Week days header */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+
+      {/* Dias da semana: DOM SEG ... SÁB (SÁB em coral, resto branco) */}
+      <div className="grid grid-cols-7 gap-0 mb-1">
         {weekDays.map((day, idx) => (
-          <div 
-            key={day} 
+          <div
+            key={day}
             className={cn(
-              "text-center text-xs lg:text-sm font-medium py-2",
-              idx === 0 || idx === 6 
-                ? "text-primary/70" 
-                : "text-muted-foreground"
+              "text-center text-xs font-medium py-2",
+              idx === 6 ? "text-primary" : "text-foreground"
             )}
           >
             {day}
           </div>
         ))}
       </div>
-      
-      {/* Calendar grid */}
+
+      {/* Grid de datas: número branco, dia atual com anel coral, pontos coloridos abaixo */}
       <AnimatePresence mode="wait" custom={direction}>
         <motion.div
           key={currentDate.toISOString()}
@@ -191,60 +166,49 @@ export function CalendarGrid({ onDayClick }: CalendarGridProps) {
           animate="center"
           exit="exit"
           transition={{ duration: 0.25 }}
-          className="grid grid-cols-7 gap-1"
+          className="grid grid-cols-7 gap-0.5"
         >
           {calendarDays.map(({ date, isCurrentMonth, events: dayEvents }, index) => {
             const dayIsToday = isToday(date)
             const hasEvents = dayEvents.length > 0
-            
+
             return (
               <motion.button
                 key={index}
                 onClick={() => onDayClick(date)}
                 className={cn(
-                  "relative h-12 sm:h-14 lg:h-16 p-0.5 rounded-xl transition-all flex flex-col items-center justify-start pt-1",
-                  isCurrentMonth 
-                    ? "hover:bg-secondary/80 text-foreground" 
-                    : "text-muted-foreground/30",
-                  dayIsToday && "ring-2 ring-primary ring-offset-2 ring-offset-card",
-                  hasEvents && isCurrentMonth && "bg-secondary/40"
+                  "relative h-11 sm:h-12 lg:h-14 rounded-lg transition-colors flex flex-col items-center justify-start pt-1.5",
+                  isCurrentMonth
+                    ? "text-foreground hover:bg-muted"
+                    : "text-muted-foreground/60"
                 )}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <span className={cn(
-                  "text-sm font-medium flex items-center justify-center",
-                  dayIsToday && "bg-primary text-primary-foreground rounded-full w-7 h-7"
-                )}>
+                <span
+                  className={cn(
+                    "inline-flex items-center justify-center w-8 h-8 text-sm font-normal rounded-full",
+                    dayIsToday && "ring-2 ring-primary ring-offset-2 ring-offset-card"
+                  )}
+                >
                   {date.getDate()}
                 </span>
-                
+
                 {hasEvents && isCurrentMonth && (
-                  <div className="flex flex-wrap justify-center gap-0.5 mt-0.5 max-w-full px-0.5">
-                    {dayEvents.slice(0, 3).map((event, idx) => {
+                  <div className="flex flex-wrap justify-center gap-1 mt-1 max-w-full">
+                    {dayEvents.slice(0, 4).map((event, idx) => {
                       const category = getCategoryById(event.category)
                       if (!category) return null
-                      const Icon = iconMap[category.icon]
-                      
                       return (
-                        <motion.div
+                        <span
                           key={idx}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="h-4 w-4 lg:h-5 lg:w-5 rounded-full flex items-center justify-center shadow-sm"
-                          style={{ backgroundColor: category.bg }}
+                          className="h-1.5 w-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: category.text }}
                           title={event.title}
-                        >
-                          {Icon && <Icon className="h-2.5 w-2.5 lg:h-3 lg:w-3" style={{ color: category.text }} />}
-                        </motion.div>
+                        />
                       )
                     })}
-                    {dayEvents.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground font-medium">
-                        +{dayEvents.length - 3}
-                      </span>
-                    )}
                   </div>
                 )}
               </motion.button>

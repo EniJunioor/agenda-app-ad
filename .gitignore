@@ -10,8 +10,13 @@ next.user-config.*
 
 # Environment variables
 .env*.local
+.env
 
 # Common ignores
 node_modules/
 .next/
 .DS_Store
+
+# Prisma (local/dev)
+prisma/*.db
+prisma/*.db-journal

@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react"
-import { Event, mockEvents, Reaction } from "@/data/events"
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react"
+import { Event, Reaction } from "@/data/events"
 
 interface CoupleInfo {
   name: string
@@ -23,10 +23,21 @@ interface DailySuggestion {
   difficulty: "facil" | "medio" | "elaborado"
 }
 
+export interface ApiUser {
+  id: string
+  email: string
+  name: string
+  coupleId: string
+  coupleName: string
+  couple?: CoupleInfo
+}
+
 interface AgendaContextType {
   events: Event[]
   couple: CoupleInfo
   isLoggedIn: boolean
+  user: ApiUser | null
+  sessionLoading: boolean
   selectedCategory: string | null
   dailySuggestions: DailySuggestion[]
   addEvent: (event: Omit<Event, "id">) => void
@@ -34,8 +45,9 @@ interface AgendaContextType {
   deleteEvent: (id: string) => void
   addReaction: (eventId: string, reaction: Reaction) => void
   setCouple: (couple: CoupleInfo) => void
-  login: (coupleName: string) => void
-  logout: () => void
+  setSessionFromUser: (user: ApiUser) => void
+  loadSession: () => Promise<void>
+  logout: () => Promise<void>
   setSelectedCategory: (category: string | null) => void
   refreshSuggestions: () => void
 }
@@ -186,14 +198,16 @@ function getRandomSuggestions(count: number): DailySuggestion[] {
 const AgendaContext = createContext<AgendaContextType | undefined>(undefined)
 
 export function AgendaProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<Event[]>(mockEvents)
+  const [events, setEvents] = useState<Event[]>([])
   const [couple, setCouple] = useState<CoupleInfo>({
-    name: "Joao & Maria",
-    partner1: "Joao",
-    partner2: "Maria",
-    startDate: "2023-06-15"
+    name: "",
+    partner1: "",
+    partner2: "",
+    startDate: undefined
   })
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState<ApiUser | null>(null)
+  const [sessionLoading, setSessionLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [dailySuggestions, setDailySuggestions] = useState<DailySuggestion[]>([])
 
@@ -235,19 +249,64 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
     )
   }
 
-  const login = (coupleName: string) => {
-    const [partner1, partner2] = coupleName.split(" & ")
-    setCouple(prev => ({
-      ...prev,
-      name: coupleName,
-      partner1: partner1 || "Parceiro 1",
-      partner2: partner2 || "Parceiro 2"
-    }))
+  const setSessionFromUser = (u: ApiUser) => {
+    setUser(u)
+    const c = u.couple ?? {
+      name: u.coupleName,
+      partner1: "",
+      partner2: "",
+      startDate: undefined
+    }
+    setCouple({
+      name: c.name,
+      partner1: c.partner1 || "",
+      partner2: c.partner2 || "",
+      startDate: c.startDate,
+      anniversary: c.anniversary
+    })
     setIsLoggedIn(true)
   }
 
-  const logout = () => {
+  const loadSession = useCallback(async () => {
+    setSessionLoading(true)
+    const doFetch = () =>
+      fetch("/api/auth/me", {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      })
+    try {
+      let res = await doFetch()
+      let data = await res.json()
+      if (data?.user) {
+        setSessionFromUser(data.user)
+        setSessionLoading(false)
+        return
+      }
+      await new Promise((r) => setTimeout(r, 300))
+      res = await doFetch()
+      data = await res.json()
+      if (data?.user) {
+        setSessionFromUser(data.user)
+      } else {
+        setIsLoggedIn(false)
+        setUser(null)
+      }
+    } catch {
+      setIsLoggedIn(false)
+      setUser(null)
+    } finally {
+      setSessionLoading(false)
+    }
+  }, [])
+
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+    } catch {}
     setIsLoggedIn(false)
+    setUser(null)
+    setCouple({ name: "", partner1: "", partner2: "" })
   }
 
   return (
@@ -256,6 +315,8 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
         events,
         couple,
         isLoggedIn,
+        user,
+        sessionLoading,
         selectedCategory,
         dailySuggestions,
         addEvent,
@@ -263,7 +324,8 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
         deleteEvent,
         addReaction,
         setCouple,
-        login,
+        setSessionFromUser,
+        loadSession,
         logout,
         setSelectedCategory,
         refreshSuggestions

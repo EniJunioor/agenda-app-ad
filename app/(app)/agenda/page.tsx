@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { useAgenda } from "@/context/agenda-context"
 import { CalendarGrid } from "@/components/agenda/calendar-grid"
 import { CategoryFilter } from "@/components/agenda/category-filter"
@@ -8,28 +9,37 @@ import { EventModal } from "@/components/agenda/event-modal"
 import { EventCard } from "@/components/agenda/event-card"
 import { MobileNav } from "@/components/agenda/mobile-nav"
 import { CoupleHeader } from "@/components/agenda/couple-header"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { PageTransition, FadeIn } from "@/components/page-transition"
 import { Button } from "@/components/ui/button"
-import { Plus, Sparkles, ArrowRight } from "lucide-react"
+import { Plus, ArrowRight, Bell, Search, Film } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { categories } from "@/data/events"
 
-export default function AgendaPage() {
+function AgendaPageContent() {
+  const searchParams = useSearchParams()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const { events, selectedCategory, dailySuggestions } = useAgenda()
-  
+
+  useEffect(() => {
+    if (searchParams.get("novo") === "1") {
+      setSelectedDate(undefined)
+      setIsModalOpen(true)
+      window.history.replaceState({}, "", "/agenda")
+    }
+  }, [searchParams])
+
   const handleDayClick = (date: Date) => {
     setSelectedDate(date)
     setIsModalOpen(true)
   }
-  
+
   const handleAddClick = () => {
     setSelectedDate(undefined)
     setIsModalOpen(true)
   }
-  
+
   const upcomingEvents = useMemo(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -55,21 +65,37 @@ export default function AgendaPage() {
             <div className="lg:hidden flex items-center gap-3">
               <CoupleHeader />
             </div>
-            
+
             {/* Desktop */}
             <div className="hidden lg:block">
-              <h1 className="font-serif text-2xl text-foreground">Nossa Agenda</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-2xl font-bold text-foreground">Nossa Agenda</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
                 Organizem juntos os melhores momentos
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-10 w-10 rounded-full bg-muted hover:bg-muted/80"
+                aria-label="Notificações"
+              >
+                <Bell className="h-5 w-5 text-foreground" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-black dark:bg-white" aria-hidden />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full bg-muted hover:bg-muted/80"
+                aria-label="Pesquisar"
+              >
+                <Search className="h-5 w-5 text-foreground" />
+              </Button>
+              <Button
                 onClick={handleAddClick}
                 size="sm"
-                className="hidden lg:flex items-center gap-2 rounded-xl shadow-sm"
+                className="lg:hidden flex items-center gap-2 rounded-xl"
               >
                 <Plus className="h-4 w-4" />
                 Novo evento
@@ -97,27 +123,28 @@ export default function AgendaPage() {
               <FadeIn delay={0.2}>
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-medium text-foreground">Proximos eventos</h2>
-                    <Link 
-                      href="/historico" 
-                      className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Próximos eventos
+                    </h2>
+                    <Link
+                      href="/historico"
+                      className="text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/90 flex items-center gap-1"
                     >
                       Ver todos
-                      <ArrowRight className="h-3 w-3" />
                     </Link>
                   </div>
-                  
+
                   {upcomingEvents.length === 0 ? (
-                    <div className="bg-card rounded-2xl p-5 text-center border border-border/50">
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Nenhum evento proximo
+                    <div className="bg-card rounded-xl p-5 text-center border border-dashed border-border">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Nenhum evento próximo
                       </p>
-                      <Button 
-                        variant="outline" 
+                      <Button
                         size="sm"
                         onClick={handleAddClick}
-                        className="rounded-xl text-xs"
+                        className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5"
                       >
+                        <Plus className="h-4 w-4" />
                         Criar evento
                       </Button>
                     </div>
@@ -137,32 +164,61 @@ export default function AgendaPage() {
                   )}
                 </div>
               </FadeIn>
-              
+
               {/* Daily Suggestion Preview */}
               {dailySuggestions.length > 0 && (
                 <FadeIn delay={0.3}>
                   <Link href="/sugestoes">
-                    <motion.div 
-                      className="group relative overflow-hidden bg-gradient-to-br from-gold/10 to-warm/10 dark:from-gold/5 dark:to-warm/5 rounded-2xl p-4 border border-gold/20 hover:border-gold/40 transition-all duration-300"
+                    <motion.div
+                      className="group relative overflow-hidden bg-card rounded-xl p-4 border border-border hover:border-primary/30 transition-all duration-300"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gold/15 flex items-center justify-center shrink-0">
-                          <Sparkles className="h-4 w-4 text-gold" />
+                      <div className="flex items-start gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                          <Film className="h-6 w-6 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground mb-0.5">Sugestao do dia</p>
-                          <p className="text-xs text-muted-foreground line-clamp-1">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Para hoje à noite
+                          </p>
+                          <p className="text-base font-bold text-foreground line-clamp-1">
                             {dailySuggestions[0].title}
                           </p>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-0.5 transition-all" />
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
                       </div>
                     </motion.div>
                   </Link>
                 </FadeIn>
               )}
+
+              {/* Legenda */}
+              <FadeIn delay={0.35}>
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                    Legenda
+                  </h3>
+                  <div className="flex flex-wrap gap-x-4 gap-y-2">
+                    {["a_dois", "natureza", "show", "aniversario"].map((id) => {
+                      const cat = categories.find((c) => c.id === id)
+                      if (!cat) return null
+                      return (
+                        <div
+                          key={cat.id}
+                          className="flex items-center gap-2 text-xs text-muted-foreground"
+                        >
+                          <span
+                            className="h-2 w-2 rounded-full shrink-0"
+                            style={{ backgroundColor: cat.text }}
+                          />
+                          <span>{cat.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </FadeIn>
             </div>
           </div>
         </main>
@@ -189,5 +245,13 @@ export default function AgendaPage() {
         selectedDate={selectedDate}
       />
     </PageTransition>
+  )
+}
+
+export default function AgendaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>}>
+      <AgendaPageContent />
+    </Suspense>
   )
 }

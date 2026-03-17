@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  coupleId     String
+  couple       Couple   @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Couple {
+  id          String   @id @default(cuid())
+  name        String
+  partner1Id  String?  // preenchido ao criar; depois obrigatório na lógica
+  partner2Id  String?
+  startDate   String?
+  users       User[]
+  invites     PartnerInvite[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PartnerInvite {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  coupleId  String
+  couple    Couple   @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}

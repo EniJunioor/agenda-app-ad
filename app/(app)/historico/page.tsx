@@ -5,10 +5,10 @@ import { useAgenda } from "@/context/agenda-context"
 import { getCategoryById } from "@/data/events"
 import { CategoryFilter } from "@/components/agenda/category-filter"
 import { MobileNav } from "@/components/agenda/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
 import { PageTransition, FadeIn } from "@/components/page-transition"
 import { Card, CardContent } from "@/components/ui/card"
-import { MapPin, Clock, Calendar, ArrowRight } from "lucide-react"
+import { MapPin, Clock, Calendar, ArrowRight, Bell, Search } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { 
@@ -83,12 +83,19 @@ export default function HistoricoPage() {
         <header className="sticky top-0 z-30 glass border-b border-border/40">
           <div className="flex items-center justify-between p-4 lg:px-8">
             <div>
-              <h1 className="font-serif text-xl lg:text-2xl text-foreground">Historico</h1>
-              <p className="text-xs text-muted-foreground hidden lg:block">
+              <h1 className="font-serif text-xl lg:text-2xl text-foreground">Histórico</h1>
+              <p className="text-sm text-muted-foreground hidden lg:block">
                 Todos os momentos vividos juntos
               </p>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Notificações">
+                <Bell className="h-5 w-5 text-muted-foreground" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Pesquisar">
+                <Search className="h-5 w-5 text-muted-foreground" />
+              </Button>
+            </div>
           </div>
         </header>
         

@@ -4,21 +4,38 @@ import { useEffect } from "react"
 import { useAgenda } from "@/context/agenda-context"
 import { AppSidebar } from "@/components/agenda/app-sidebar"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { isLoggedIn, login } = useAgenda()
-  
+  const { isLoggedIn, loadSession, sessionLoading } = useAgenda()
+  const router = useRouter()
+
   useEffect(() => {
-    // Auto-login for demo purposes
+    loadSession()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rodar só no mount
+  }, [])
+
+  useEffect(() => {
+    if (sessionLoading) return
     if (!isLoggedIn) {
-      login("Joao & Maria")
+      router.replace("/")
     }
-  }, [isLoggedIn, login])
-  
+  }, [sessionLoading, isLoggedIn, router])
+
+  if (sessionLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (!isLoggedIn) return null
+
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar />
