@@ -2,17 +2,15 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 
-interface Params {
-  params: { id: string }
-}
+type RouteContext = { params: Promise<{ id: string }> }
 
-export async function PATCH(request: Request, { params }: Params) {
+export async function PATCH(request: Request, context: RouteContext) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
   }
 
-  const { id } = params
+  const { id } = await context.params
 
   try {
     const body = await request.json() as {
@@ -48,13 +46,13 @@ export async function PATCH(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(_request: Request, { params }: Params) {
+export async function DELETE(_request: Request, context: RouteContext) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
   }
 
-  const { id } = params
+  const { id } = await context.params
 
   try {
     const deleted = await prisma.event.deleteMany({
