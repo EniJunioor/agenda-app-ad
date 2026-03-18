@@ -6,7 +6,6 @@ import { useAgenda } from "@/context/agenda-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Heart, Calendar, Sparkles, ArrowRight, Users, Star } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -21,7 +20,7 @@ function LoginPageInner() {
   const [coupleName, setCoupleName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(true)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const { setSessionFromUser, isLoggedIn } = useAgenda()
@@ -114,10 +113,6 @@ function LoginPageInner() {
               />
             </motion.div>
           ))}
-        </div>
-        
-        <div className="absolute top-6 right-6 lg:top-8 lg:right-8">
-          <ThemeToggle />
         </div>
         
         <div className="relative max-w-md text-center lg:text-left">

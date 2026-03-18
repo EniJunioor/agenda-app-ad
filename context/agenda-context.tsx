@@ -9,9 +9,9 @@ interface CoupleInfo {
   partner2: string
   anniversary?: string
   startDate?: string
-  avatar1?: string   // base64 ou URL
-  avatar2?: string   // base64 ou URL
-  bio?: string       // frase do casal
+  avatar1?: string
+  avatar2?: string
+  bio?: string
 }
 
 interface DailySuggestion {
@@ -75,22 +75,6 @@ function getRandomSuggestions(count: number): DailySuggestion[] {
   return [...allSuggestions].sort(() => 0.5 - Math.random()).slice(0, count)
 }
 
-const STORAGE_KEY = "nossa-agenda-couple"
-
-function loadCoupleFromStorage(): CoupleInfo {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return { name: "", partner1: "", partner2: "" }
-}
-
-function saveCoupleToStorage(couple: CoupleInfo) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(couple))
-  } catch {}
-}
-
 const AgendaContext = createContext<AgendaContextType | undefined>(undefined)
 
 export function AgendaProvider({ children }: { children: ReactNode }) {
@@ -102,18 +86,12 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [dailySuggestions, setDailySuggestions] = useState<DailySuggestion[]>([])
 
-  // Carrega dados salvos no localStorage ao iniciar
   useEffect(() => {
-    const saved = loadCoupleFromStorage()
-    if (saved.name || saved.avatar1 || saved.avatar2) {
-      setCoupleState(prev => ({ ...prev, ...saved }))
-    }
     setDailySuggestions(getRandomSuggestions(3))
   }, [])
 
   const setCouple = (newCouple: CoupleInfo) => {
     setCoupleState(newCouple)
-    saveCoupleToStorage(newCouple)
   }
 
   const refreshSuggestions = () => setDailySuggestions(getRandomSuggestions(3))
@@ -138,17 +116,15 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
 
   const setSessionFromUser = (u: ApiUser) => {
     setUser(u)
-    const saved = loadCoupleFromStorage()
     const c = u.couple ?? { name: u.coupleName, partner1: "", partner2: "" }
     const merged: CoupleInfo = {
       name: c.name,
       partner1: c.partner1 || "",
       partner2: c.partner2 || "",
       startDate: c.startDate,
-      // preserva fotos salvas localmente
-      avatar1: saved.avatar1,
-      avatar2: saved.avatar2,
-      bio: saved.bio,
+      avatar1: c.avatar1,
+      avatar2: c.avatar2,
+      bio: c.bio,
     }
     setCoupleState(merged)
     setIsLoggedIn(true)

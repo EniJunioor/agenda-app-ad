@@ -88,7 +88,19 @@ export default function CasalPage() {
 
   const openEdit = () => { setDraft({ ...couple }); setEditing(true) }
   const cancelEdit = () => setEditing(false)
-  const saveEdit = () => { setCouple(draft); setEditing(false) }
+  const saveEdit = async () => {
+    setCouple(draft)
+    try {
+      await fetch("/api/couple", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      })
+    } catch {
+      // silencioso; estado local já foi atualizado
+    }
+    setEditing(false)
+  }
 
   const stats = useMemo(() => {
     const today = new Date()

@@ -31,6 +31,9 @@ model Couple {
   partner1Id String?
   partner2Id String?
   startDate  String?
+  avatar1    String?
+  avatar2    String?
+  bio        String?
   users      User[]
   invites    PartnerInvite[]
   createdAt  DateTime        @default(now())
