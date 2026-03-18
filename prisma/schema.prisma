@@ -36,6 +36,7 @@ model Couple {
   bio        String?
   users      User[]
   invites    PartnerInvite[]
+  events     Event[]
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 }
@@ -49,4 +50,20 @@ model PartnerInvite {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  coupleId  String
+  couple    Couple   @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  title     String
+  date      String   // ISO YYYY-MM-DD
+  time      String   // HH:mm
+  category  String
+  location  String
+  notes     String
+  attendees String
+  photoUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

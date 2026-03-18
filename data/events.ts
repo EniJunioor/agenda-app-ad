@@ -24,6 +24,7 @@ export interface Event {
   notes: string
   attendees: "so_eu" | "a_dois" | "amigos"
   reactions: Reaction[]
+  photoUrl?: string
 }
 
 export const categories: Category[] = [

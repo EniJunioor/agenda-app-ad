@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use } from "react"
+import { useState, use, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAgenda } from "@/context/agenda-context"
 import { getCategoryById, type Reaction } from "@/data/events"
@@ -8,6 +8,7 @@ import { EventModal } from "@/components/agenda/event-modal"
 import { MobileNav } from "@/components/agenda/mobile-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Image from "next/image"
 import {
   ArrowLeft, MapPin, Clock, Calendar, Edit, Trash2, Share2, Heart,
   User, Send, Music, Film, UtensilsCrossed, Users, Plane, TreePine, Cake, type LucideIcon
@@ -23,13 +24,14 @@ const attendeesLabel = { so_eu: "Só eu", a_dois: "Os dois 💑", amigos: "Com a
 export default function EventDetailPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params)
   const router = useRouter()
-  const { events, deleteEvent, addReaction, couple } = useAgenda()
+  const { events, deleteEvent, addReaction, couple, updateEvent } = useAgenda()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [liked, setLiked] = useState(false)
   const [emoji, setEmoji] = useState("")
   const [comment, setComment] = useState("")
   const [toast, setToast] = useState(false)
+  const [photoUploading, setPhotoUploading] = useState(false)
 
   const event = events.find(e => e.id === eventId)
   if (!event) return (
@@ -51,6 +53,13 @@ export default function EventDetailPage({ params }: { params: Promise<{ eventId:
   const fmtDate = (s: string) => new Date(s + "T00:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })
   const fmtTime = (s: string) => s.replace(":", "h")
 
+  const isPast = useMemo(() => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const d = new Date(event.date + "T00:00:00")
+    return d < today
+  }, [event.date])
+
   const handleDelete = () => { deleteEvent(event.id); router.push("/agenda") }
 
   const handleShare = () => {
@@ -62,6 +71,19 @@ export default function EventDetailPage({ params }: { params: Promise<{ eventId:
     if (!emoji) return
     addReaction(event.id, { partner: couple.partner1, emoji, comment })
     setEmoji(""); setComment("")
+  }
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = reader.result as string
+      setPhotoUploading(true)
+      await updateEvent(event.id, { photoUrl: base64 })
+      setPhotoUploading(false)
+    }
+    reader.readAsDataURL(file)
   }
 
   return (
@@ -132,6 +154,40 @@ export default function EventDetailPage({ params }: { params: Promise<{ eventId:
                   <div className="rounded-2xl bg-secondary/50 p-4 mb-6">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Notas</p>
                     <p className="text-sm text-foreground leading-relaxed">{event.notes}</p>
+                  </div>
+                )}
+
+                {/* Photo */}
+                {isPast && (
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Foto do momento</p>
+                      <label className="text-xs font-semibold text-primary hover:underline cursor-pointer">
+                        {event.photoUrl ? "Trocar foto" : "Adicionar foto"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handlePhotoChange}
+                          disabled={photoUploading}
+                        />
+                      </label>
+                    </div>
+                    {event.photoUrl ? (
+                      <div className="relative rounded-2xl overflow-hidden border border-border/60 bg-secondary/40">
+                        <Image
+                          src={event.photoUrl}
+                          alt={event.title}
+                          width={800}
+                          height={600}
+                          className="w-full h-56 object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-border bg-secondary/40 py-6 text-center text-xs text-muted-foreground">
+                        {photoUploading ? "Salvando foto..." : "Nenhuma foto adicionada ainda. Que tal registrar esse momento?"}
+                      </div>
+                    )}
                   </div>
                 )}
 

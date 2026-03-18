@@ -50,6 +50,17 @@ function AgendaContent() {
     }
   }, [events])
 
+  const photoReminders = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    return events
+      .filter(e => {
+        const d = new Date(e.date + "T00:00:00")
+        return d < today && !e.photoUrl
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 1)
+  }, [events])
+
   return (
     <PageTransition>
       <div className="min-h-screen pb-20 lg:pb-0">
@@ -84,6 +95,33 @@ function AgendaContent() {
         </header>
 
         <main className="p-4 lg:p-7 space-y-5">
+
+          {photoReminders.length > 0 && (
+            <FadeIn delay={.04}>
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
+                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Calendar className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Guardar a memória de um momento?
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    O evento <strong>{photoReminders[0].title}</strong> já aconteceu. Que tal adicionar uma foto para lembrar desse dia?
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      href="/historico"
+                      className="text-xs font-semibold text-primary hover:underline"
+                    >
+                      Ver no histórico
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          )
+          }
 
           {/* Stats row (mobile) */}
           <FadeIn delay={.05}>

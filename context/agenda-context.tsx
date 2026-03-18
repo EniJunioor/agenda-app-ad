@@ -41,9 +41,9 @@ interface AgendaContextType {
   sessionLoading: boolean
   selectedCategory: string | null
   dailySuggestions: DailySuggestion[]
-  addEvent: (event: Omit<Event, "id">) => void
-  updateEvent: (id: string, event: Partial<Event>) => void
-  deleteEvent: (id: string) => void
+  addEvent: (event: Omit<Event, "id">) => Promise<void>
+  updateEvent: (id: string, event: Partial<Event>) => Promise<void>
+  deleteEvent: (id: string) => Promise<void>
   addReaction: (eventId: string, reaction: Reaction) => void
   setCouple: (couple: CoupleInfo) => void
   setSessionFromUser: (user: ApiUser) => void
@@ -96,16 +96,43 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
 
   const refreshSuggestions = () => setDailySuggestions(getRandomSuggestions(3))
 
-  const addEvent = (event: Omit<Event, "id">) => {
-    setEvents(prev => [...prev, { ...event, id: Date.now().toString() }])
+  const addEvent = async (event: Omit<Event, "id">) => {
+    try {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(event),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      if (data?.event) {
+        setEvents(prev => [...prev, data.event])
+      }
+    } catch {
+      // erro silencioso por enquanto
+    }
   }
 
-  const updateEvent = (id: string, updates: Partial<Event>) => {
+  const updateEvent = async (id: string, updates: Partial<Event>) => {
     setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e))
+    try {
+      await fetch(`/api/events/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+    } catch {
+      // mantém estado otimista
+    }
   }
 
-  const deleteEvent = (id: string) => {
+  const deleteEvent = async (id: string) => {
     setEvents(prev => prev.filter(e => e.id !== id))
+    try {
+      await fetch(`/api/events/${id}`, { method: "DELETE" })
+    } catch {
+      // mantém remoção local
+    }
   }
 
   const addReaction = (eventId: string, reaction: Reaction) => {
@@ -141,12 +168,34 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
     try {
       let res = await doFetch()
       let data = await res.json()
-      if (data?.user) { setSessionFromUser(data.user); setSessionLoading(false); return }
+      if (data?.user) {
+        setSessionFromUser(data.user)
+        try {
+          const evRes = await fetch("/api/events", { credentials: "include" })
+          if (evRes.ok) {
+            const evData = await evRes.json()
+            if (evData?.events) setEvents(evData.events)
+          }
+        } catch {
+          // ignora erro de eventos
+        }
+        setSessionLoading(false)
+        return
+      }
       await new Promise(r => setTimeout(r, 300))
       res = await doFetch()
       data = await res.json()
       if (data?.user) {
         setSessionFromUser(data.user)
+        try {
+          const evRes = await fetch("/api/events", { credentials: "include" })
+          if (evRes.ok) {
+            const evData = await evRes.json()
+            if (evData?.events) setEvents(evData.events)
+          }
+        } catch {
+          // ignora erro de eventos
+        }
       } else {
         setIsLoggedIn(false); setUser(null)
       }

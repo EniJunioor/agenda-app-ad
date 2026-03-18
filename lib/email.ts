@@ -39,3 +39,42 @@ export async function sendPartnerInviteEmail(params: {
     return { sent: false, link, error: message }
   }
 }
+
+export async function sendEventPhotoReminderEmail(params: {
+  to: string
+  coupleName: string
+  eventTitle: string
+  eventDate: string
+  eventId: string
+}): Promise<{ sent: boolean; error?: string }> {
+  if (!resend) {
+    return { sent: false }
+  }
+
+  const url = `${APP_URL}/historico`
+  const dateFormatted = new Date(params.eventDate + "T00:00:00").toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `Guardem uma foto de "${params.eventTitle}"`,
+      html: `
+        <p>Olá!</p>
+        <p>Ontem vocês tiveram o evento <strong>${params.eventTitle}</strong> na agenda do casal <strong>${params.coupleName}</strong> (${dateFormatted}).</p>
+        <p>Que tal guardar uma foto desse momento na sua agenda?</p>
+        <p><a href="${url}" style="color: #e11d48;">Abrir histórico e adicionar foto</a></p>
+        <p>— Nossa Agenda</p>
+      `,
+    })
+    if (error) return { sent: false, error: error.message }
+    return { sent: true }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Erro ao enviar email"
+    return { sent: false, error: message }
+  }
+}
