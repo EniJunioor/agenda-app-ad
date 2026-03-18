@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { Suspense, useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAgenda } from "@/context/agenda-context"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,7 @@ const features = [
   { icon: Sparkles, text: "Momentos especiais" }
 ]
 
-export default function LoginPage() {
+function LoginPageInner() {
   const [coupleName, setCoupleName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -304,5 +304,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <LoginPageInner />
+    </Suspense>
   )
 }

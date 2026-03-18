@@ -206,15 +206,12 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
                         onClick={() => setFormData(prev => ({ ...prev, category: category.id }))}
                         className={cn(
                           "flex flex-col items-center gap-1 p-3 rounded-xl transition-all",
-                          isSelected 
-                            ? "ring-2" 
-                            : "hover:opacity-80"
+                          isSelected ? "ring-2" : "hover:opacity-80"
                         )}
-                        style={{ 
-                          backgroundColor: category.bg, 
+                        style={{
+                          backgroundColor: category.bg,
                           color: category.text,
-                          borderColor: isSelected ? category.text : "transparent",
-                          ringColor: category.text
+                          borderColor: isSelected ? category.text : "transparent"
                         }}
                       >
                         {Icon && <Icon className="h-5 w-5" />}
