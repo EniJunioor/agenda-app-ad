@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       notes: string
       attendees: "so_eu" | "a_dois" | "amigos"
       photoUrl?: string
+      remindOneDayBefore?: boolean
+      remindTwoHoursBefore?: boolean
     }
 
     if (!body.title || !body.date || !body.time || !body.category) {
@@ -49,6 +51,8 @@ export async function POST(request: Request) {
         notes: body.notes ?? "",
         attendees: body.attendees ?? "a_dois",
         photoUrl: body.photoUrl,
+        remindOneDayBefore: !!body.remindOneDayBefore,
+        remindTwoHoursBefore: !!body.remindTwoHoursBefore,
       },
     })
 

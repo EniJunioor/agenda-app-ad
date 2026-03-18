@@ -64,6 +64,10 @@ model Event {
   notes     String
   attendees String
   photoUrl  String?
+  remindOneDayBefore   Boolean  @default(false)
+  remindTwoHoursBefore Boolean  @default(false)
+  remindedOneDay       Boolean  @default(false)
+  remindedTwoHours     Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

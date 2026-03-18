@@ -78,3 +78,53 @@ export async function sendEventPhotoReminderEmail(params: {
     return { sent: false, error: message }
   }
 }
+
+export async function sendEventUpcomingReminderEmail(params: {
+  to: string
+  coupleName: string
+  eventTitle: string
+  eventDate: string
+  eventTime: string
+  when: "one-day" | "two-hours"
+}): Promise<{ sent: boolean; error?: string }> {
+  if (!resend) {
+    return { sent: false }
+  }
+
+  const url = `${APP_URL}/agenda`
+  const dateFormatted = new Date(params.eventDate + "T00:00:00").toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+
+  const subject =
+    params.when === "one-day"
+      ? `Amanhã tem "${params.eventTitle}" na agenda de vocês`
+      : `Daqui a pouco tem "${params.eventTitle}" na agenda de vocês`
+
+  const intro =
+    params.when === "one-day"
+      ? `Amanhã (${dateFormatted}), vocês têm um momento marcado: <strong>${params.eventTitle}</strong> às <strong>${params.eventTime}</strong>.`
+      : `Em breve hoje (${dateFormatted}), vocês têm um momento marcado: <strong>${params.eventTitle}</strong> às <strong>${params.eventTime}</strong>.`
+
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: params.to,
+      subject,
+      html: `
+        <p>Olá!</p>
+        <p>${intro}</p>
+        <p>Que tal já combinarem os detalhes e garantir que nada atrapalhe esse momento?</p>
+        <p><a href="${url}" style="color: #e11d48;">Abrir agenda</a></p>
+        <p>— Nossa Agenda</p>
+      `,
+    })
+    if (error) return { sent: false, error: error.message }
+    return { sent: true }
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Erro ao enviar email"
+    return { sent: false, error: message }
+  }
+}

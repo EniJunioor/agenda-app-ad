@@ -51,7 +51,9 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
     category: "",
     location: "",
     notes: "",
-    attendees: "a_dois" as "so_eu" | "a_dois" | "amigos"
+    attendees: "a_dois" as "so_eu" | "a_dois" | "amigos",
+    remindOneDayBefore: false,
+    remindTwoHoursBefore: false,
   })
   
   useEffect(() => {
@@ -63,7 +65,9 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
         category: editEvent.category,
         location: editEvent.location,
         notes: editEvent.notes,
-        attendees: editEvent.attendees
+        attendees: editEvent.attendees,
+        remindOneDayBefore: !!editEvent.remindOneDayBefore,
+        remindTwoHoursBefore: !!editEvent.remindTwoHoursBefore,
       })
     } else if (selectedDate) {
       setFormData(prev => ({
@@ -99,7 +103,9 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
         category: "",
         location: "",
         notes: "",
-        attendees: "a_dois"
+        attendees: "a_dois",
+        remindOneDayBefore: false,
+        remindTwoHoursBefore: false,
       })
     }, 2000)
   }
@@ -281,6 +287,30 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
                   onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   className="bg-secondary/50 min-h-[80px]"
                 />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-sm">Lembretes</Label>
+                <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 rounded border-border"
+                      checked={formData.remindOneDayBefore}
+                      onChange={e => setFormData(prev => ({ ...prev, remindOneDayBefore: e.target.checked }))}
+                    />
+                    <span>Lembrar 1 dia antes do evento</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 rounded border-border"
+                      checked={formData.remindTwoHoursBefore}
+                      onChange={e => setFormData(prev => ({ ...prev, remindTwoHoursBefore: e.target.checked }))}
+                    />
+                    <span>Lembrar 2 horas antes</span>
+                  </label>
+                </div>
               </div>
               
               <div className="flex gap-3 pt-2">

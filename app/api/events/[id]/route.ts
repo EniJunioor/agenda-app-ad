@@ -24,6 +24,8 @@ export async function PATCH(request: Request, { params }: Params) {
       notes?: string
       attendees?: "so_eu" | "a_dois" | "amigos"
       photoUrl?: string | null
+      remindOneDayBefore?: boolean
+      remindTwoHoursBefore?: boolean
     }
 
     const updated = await prisma.event.updateMany({

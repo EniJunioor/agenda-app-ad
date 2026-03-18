@@ -25,6 +25,10 @@ export interface Event {
   attendees: "so_eu" | "a_dois" | "amigos"
   reactions: Reaction[]
   photoUrl?: string
+  remindOneDayBefore?: boolean
+  remindTwoHoursBefore?: boolean
+  remindedOneDay?: boolean
+  remindedTwoHours?: boolean
 }
 
 export const categories: Category[] = [
