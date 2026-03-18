@@ -12,7 +12,7 @@ import { getCategoryById } from "@/data/events"
 import {
   Heart, Calendar, Star, Edit2, Check, X, Sparkles,
   Clock, Trophy, Camera, MapPin, MessageSquareHeart,
-  TrendingUp, Flame, Gift
+  TrendingUp, Flame, Gift, Target
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
@@ -154,6 +154,28 @@ export default function CasalPage() {
 
   const nextMilestone = milestones.find(m => stats.daysTogether < m.days)
 
+  const goalsProgress = useMemo(() => {
+    const g = couple.goals
+    if (!g?.encontrosPorMes && !g?.viagensPorAno) return null
+
+    const now = new Date()
+    const yyyy = now.getFullYear()
+    const mm = String(now.getMonth() + 1).padStart(2, "0")
+    const monthPrefix = `${yyyy}-${mm}`
+
+    const encontrosNoMes = events.filter(e => e.date.startsWith(monthPrefix) && e.attendees !== "so_eu").length
+    const viagensNoAno = events.filter(e => e.date.startsWith(String(yyyy)) && e.category === "viagem").length
+
+    return {
+      encontrosMeta: g.encontrosPorMes ?? 0,
+      encontrosAtual: encontrosNoMes,
+      viagensMeta: g.viagensPorAno ?? 0,
+      viagensAtual: viagensNoAno,
+    }
+  }, [couple.goals, events])
+
+  const TargetIcon = Target
+
   return (
     <PageTransition>
       <div className="min-h-screen pb-24 lg:pb-8">
@@ -260,6 +282,44 @@ export default function CasalPage() {
                       maxLength={80}
                     />
                     <p className="text-[10px] text-muted-foreground">{(draft.bio || "").length}/80 caracteres</p>
+                  </div>
+
+                  {/* Metas */}
+                  <div className="rounded-2xl border border-border/60 bg-secondary/20 p-4">
+                    <p className="text-xs font-bold text-foreground mb-3">Metas do casal</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Encontros por mês</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={draft.goals?.encontrosPorMes ?? ""}
+                          onChange={e => {
+                            const v = e.target.value === "" ? undefined : Number(e.target.value)
+                            setDraft(d => ({ ...d, goals: { ...(d.goals ?? {}), encontrosPorMes: v } }))
+                          }}
+                          placeholder="Ex: 3"
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Viagens por ano</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={draft.goals?.viagensPorAno ?? ""}
+                          onChange={e => {
+                            const v = e.target.value === "" ? undefined : Number(e.target.value)
+                            setDraft(d => ({ ...d, goals: { ...(d.goals ?? {}), viagensPorAno: v } }))
+                          }}
+                          placeholder="Ex: 2"
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      As metas aparecem como progresso na sua página de perfil.
+                    </p>
                   </div>
 
                   <div className="flex gap-2.5 pt-1">
@@ -389,6 +449,52 @@ export default function CasalPage() {
                   ))}
                 </div>
               </FadeIn>
+
+              {/* Metas (progresso) */}
+              {goalsProgress && (
+                <FadeIn delay={0.18}>
+                  <div className="rounded-2xl border border-border/60 bg-card p-4">
+                    <p className="text-xs font-bold text-muted-foreground mb-3 flex items-center gap-1.5">
+                      <TargetIcon className="h-3.5 w-3.5" />
+                      Metas
+                    </p>
+                    <div className="space-y-3">
+                      {goalsProgress.encontrosMeta > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-foreground">Encontros este mês</span>
+                            <span className="text-muted-foreground">{goalsProgress.encontrosAtual}/{goalsProgress.encontrosMeta}</span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 rounded-full bg-secondary overflow-hidden">
+                            <motion.div
+                              className="h-full bg-primary rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((goalsProgress.encontrosAtual / goalsProgress.encontrosMeta) * 100, 100)}%` }}
+                              transition={{ duration: 0.8 }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      {goalsProgress.viagensMeta > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-foreground">Viagens este ano</span>
+                            <span className="text-muted-foreground">{goalsProgress.viagensAtual}/{goalsProgress.viagensMeta}</span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 rounded-full bg-secondary overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gold rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((goalsProgress.viagensAtual / goalsProgress.viagensMeta) * 100, 100)}%` }}
+                              transition={{ duration: 0.8 }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </FadeIn>
+              )}
 
               {/* Dias juntos + próximo aniversário */}
               {stats.daysTogether > 0 && (

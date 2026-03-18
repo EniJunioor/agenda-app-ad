@@ -17,6 +17,10 @@ export async function PATCH(request: Request) {
       avatar1?: string
       avatar2?: string
       bio?: string
+      goals?: {
+        encontrosPorMes?: number
+        viagensPorAno?: number
+      }
     }
 
     const couple = await prisma.couple.update({
@@ -27,8 +31,14 @@ export async function PATCH(request: Request) {
         avatar1: body.avatar1,
         avatar2: body.avatar2,
         bio: body.bio,
+        goalsJson: body.goals ? JSON.stringify(body.goals) : undefined,
       },
     })
+
+    let goals: { encontrosPorMes?: number; viagensPorAno?: number } | undefined = undefined
+    try {
+      goals = couple.goalsJson ? JSON.parse(couple.goalsJson) : undefined
+    } catch {}
 
     return NextResponse.json({
       couple: {
@@ -39,6 +49,7 @@ export async function PATCH(request: Request) {
         avatar1: couple.avatar1 ?? undefined,
         avatar2: couple.avatar2 ?? undefined,
         bio: couple.bio ?? undefined,
+        goals,
       },
     })
   } catch (e) {

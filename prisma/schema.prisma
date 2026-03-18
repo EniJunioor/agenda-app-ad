@@ -34,6 +34,7 @@ model Couple {
   avatar1    String?
   avatar2    String?
   bio        String?
+  goalsJson  String?
   users      User[]
   invites    PartnerInvite[]
   events     Event[]

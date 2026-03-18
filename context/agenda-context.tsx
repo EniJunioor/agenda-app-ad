@@ -12,6 +12,10 @@ interface CoupleInfo {
   avatar1?: string
   avatar2?: string
   bio?: string
+  goals?: {
+    encontrosPorMes?: number
+    viagensPorAno?: number
+  }
 }
 
 interface DailySuggestion {

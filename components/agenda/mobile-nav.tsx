@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Clock, Heart, Settings, Plus, Sparkles } from "lucide-react"
+import { Calendar, Clock, Heart, Settings, Sparkles, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 
 const navItems = [
   { href: "/agenda", icon: Calendar, label: "Agenda" },
   { href: "/historico", icon: Clock, label: "Historico" },
+  { href: "/memorias", icon: ImageIcon, label: "Fotos" },
   { href: "/sugestoes", icon: Sparkles, label: "Ideias" },
   { href: "/casal", icon: Heart, label: "Nos" },
   { href: "/configuracoes", icon: Settings, label: "Config" }

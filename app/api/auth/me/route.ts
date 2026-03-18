@@ -32,11 +32,20 @@ export async function GET(request: Request) {
     ? await prisma.user.findUnique({ where: { id: user.couple.partner2Id } })
     : null
 
+  let goals: unknown = undefined
+  try {
+    goals = user.couple.goalsJson ? JSON.parse(user.couple.goalsJson) : undefined
+  } catch {}
+
   const coupleInfo = {
     name: user.couple.name,
     partner1: partner1?.name ?? "",
     partner2: partner2?.name ?? "",
     startDate: user.couple.startDate ?? undefined,
+    avatar1: user.couple.avatar1 ?? undefined,
+    avatar2: user.couple.avatar2 ?? undefined,
+    bio: user.couple.bio ?? undefined,
+    goals,
   }
 
   console.log("[auth:me] Sessão OK – retornando user:", user.email)
