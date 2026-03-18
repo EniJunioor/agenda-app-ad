@@ -20,7 +20,7 @@ function AgendaContent() {
   const searchParams = useSearchParams()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const { events, selectedCategory, dailySuggestions } = useAgenda()
+  const { events, selectedCategory, dailySuggestions, couple } = useAgenda()
 
   useEffect(() => {
     if (searchParams.get("novo") === "1") {
@@ -96,7 +96,42 @@ function AgendaContent() {
 
         <main className="p-4 lg:p-7 space-y-5">
 
-          {photoReminders.length > 0 && (
+          {/* Onboarding cards */}
+          {events.length === 0 && (
+            <FadeIn delay={.02}>
+              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex flex-col sm:flex-row gap-3 items-start">
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Calendar className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Comecem registrando o primeiro momento
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Crie o primeiro evento da agenda de vocês — pode ser um jantar, um filme ou até um plano futuro.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => { setSelectedDate(undefined); setIsModalOpen(true) }}
+                      className="rounded-xl h-8 text-xs gap-1.5"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Criar primeiro evento
+                    </Button>
+                    <Link
+                      href="/casal"
+                      className="text-xs font-semibold text-primary hover:underline"
+                    >
+                      Ajustar perfil do casal
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          )}
+
+          {events.length > 0 && photoReminders.length > 0 && (
             <FadeIn delay={.04}>
               <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex items-start gap-3">
                 <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">

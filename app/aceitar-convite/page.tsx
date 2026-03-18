@@ -6,7 +6,6 @@ import { useAgenda } from "@/context/agenda-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Heart, Calendar, Sparkles, ArrowRight, Users, Star, Eye, EyeOff } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -106,11 +105,6 @@ export function LoginPageInner() {
             {item.emoji}
           </motion.div>
         ))}
-
-        {/* Theme toggle */}
-        <div className="absolute top-5 right-5 z-10">
-          <ThemeToggle />
-        </div>
 
         {/* Conteúdo */}
         <div className="relative z-10 max-w-lg w-full">
