@@ -114,7 +114,7 @@ export function EventModal({ isOpen, onClose, selectedDate, editEvent }: EventMo
   
   const modalVariants = {
     hidden: { opacity: 0, scale: 0.94 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.25, ease: "easeOut" } },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.25 } },
     exit: { opacity: 0, scale: 0.96, transition: { duration: 0.2 } }
   }
   

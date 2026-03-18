@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server"
  * Matcher aponta para um path que ninguém acessa, então o middleware
  * não roda em /agenda e não gera 307.
  */
-export function middleware(_request: NextRequest) {
+export function proxy(_request: NextRequest) {
   return NextResponse.next()
 }
 

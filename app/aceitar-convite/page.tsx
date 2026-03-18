@@ -86,7 +86,9 @@ export default function AceitarConvitePage() {
   if (step === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-        <ThemeToggle className="absolute top-6 right-6" />
+        <div className="absolute top-6 right-6">
+          <ThemeToggle />
+        </div>
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         <p className="mt-4 text-muted-foreground">Validando convite...</p>
       </div>
@@ -96,7 +98,9 @@ export default function AceitarConvitePage() {
   if (step === "error") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-        <ThemeToggle className="absolute top-6 right-6" />
+        <div className="absolute top-6 right-6">
+          <ThemeToggle />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
