@@ -9,8 +9,9 @@ interface CoupleInfo {
   partner2: string
   anniversary?: string
   startDate?: string
-  avatar1?: string
-  avatar2?: string
+  avatar1?: string   // base64 ou URL
+  avatar2?: string   // base64 ou URL
+  bio?: string       // frase do casal
 }
 
 interface DailySuggestion {
@@ -53,217 +54,103 @@ interface AgendaContextType {
 }
 
 const allSuggestions: DailySuggestion[] = [
-  {
-    id: "1",
-    title: "Noite de filmes em casa",
-    description: "Preparem pipoca, escolham um filme que nenhum dos dois viu e curtam juntos no sofa.",
-    category: "cinema",
-    icon: "Film",
-    duration: "2-3 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "2",
-    title: "Cozinhar juntos",
-    description: "Escolham uma receita nova e cozinhem juntos. O processo e tao divertido quanto o resultado!",
-    category: "jantar",
-    icon: "UtensilsCrossed",
-    duration: "1-2 horas",
-    difficulty: "medio"
-  },
-  {
-    id: "3",
-    title: "Piquenique no parque",
-    description: "Preparem lanches, uma toalha e aproveitem um dia ao ar livre. Simples e romantico!",
-    category: "natureza",
-    icon: "TreePine",
-    duration: "2-4 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "4",
-    title: "Sessao de fotos juntos",
-    description: "Vistam-se bem, escolham um lugar bonito e tirem fotos um do outro. Memorias para guardar!",
-    category: "a_dois",
-    icon: "Heart",
-    duration: "1-2 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "5",
-    title: "Noite de jogos de tabuleiro",
-    description: "Desliguem os celulares e divirtam-se com jogos de tabuleiro ou cartas.",
-    category: "a_dois",
-    icon: "Heart",
-    duration: "2-3 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "6",
-    title: "Descobrir um cafe novo",
-    description: "Explorem um cafe ou cafeteria que nunca foram. Bonus: experimentem algo diferente!",
-    category: "jantar",
-    icon: "UtensilsCrossed",
-    duration: "1-2 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "7",
-    title: "Spa em casa",
-    description: "Mascaras faciais, velas aromaticas e musica relaxante. Uma noite de autocuidado a dois.",
-    category: "a_dois",
-    icon: "Heart",
-    duration: "2-3 horas",
-    difficulty: "medio"
-  },
-  {
-    id: "8",
-    title: "Playlist colaborativa",
-    description: "Criem uma playlist juntos com musicas que marcaram o relacionamento de voces.",
-    category: "show",
-    icon: "Music",
-    duration: "30min-1 hora",
-    difficulty: "facil"
-  },
-  {
-    id: "9",
-    title: "Trilha ao nascer do sol",
-    description: "Acordem cedo e facam uma trilha para ver o nascer do sol juntos. Vale muito a pena!",
-    category: "natureza",
-    icon: "TreePine",
-    duration: "3-5 horas",
-    difficulty: "elaborado"
-  },
-  {
-    id: "10",
-    title: "Jantar a luz de velas",
-    description: "Preparem um jantar especial em casa com velas e musica. Romantico e intimo.",
-    category: "jantar",
-    icon: "UtensilsCrossed",
-    duration: "2-3 horas",
-    difficulty: "medio"
-  },
-  {
-    id: "11",
-    title: "Visitar uma feira livre",
-    description: "Explorem uma feira de rua, experimentem comidas e descubram produtos locais.",
-    category: "natureza",
-    icon: "TreePine",
-    duration: "2-3 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "12",
-    title: "Aula online juntos",
-    description: "Aprendam algo novo juntos: danca, culinaria, idioma ou artesanato.",
-    category: "a_dois",
-    icon: "Heart",
-    duration: "1-2 horas",
-    difficulty: "medio"
-  },
-  {
-    id: "13",
-    title: "Maratona de serie",
-    description: "Escolham uma serie nova e facam uma maratona com snacks e conforto.",
-    category: "cinema",
-    icon: "Film",
-    duration: "4-6 horas",
-    difficulty: "facil"
-  },
-  {
-    id: "14",
-    title: "Escrever cartas um para o outro",
-    description: "Escrevam cartas de amor a moda antiga. Guardem para reler no futuro.",
-    category: "a_dois",
-    icon: "Heart",
-    duration: "30min-1 hora",
-    difficulty: "facil"
-  },
-  {
-    id: "15",
-    title: "Visitar um museu",
-    description: "Explorem um museu ou exposicao de arte. Discutam o que viram depois!",
-    category: "natureza",
-    icon: "TreePine",
-    duration: "2-4 horas",
-    difficulty: "facil"
-  }
+  { id: "1", title: "Noite de filmes em casa", description: "Preparem pipoca, escolham um filme que nenhum dos dois viu e curtam juntos no sofá.", category: "cinema", icon: "Film", duration: "2-3 horas", difficulty: "facil" },
+  { id: "2", title: "Cozinhar juntos", description: "Escolham uma receita nova e cozinhem juntos. O processo é tão divertido quanto o resultado!", category: "jantar", icon: "UtensilsCrossed", duration: "1-2 horas", difficulty: "medio" },
+  { id: "3", title: "Piquenique no parque", description: "Preparem lanches, uma toalha e aproveitem um dia ao ar livre. Simples e romântico!", category: "natureza", icon: "TreePine", duration: "2-4 horas", difficulty: "facil" },
+  { id: "4", title: "Sessão de fotos juntos", description: "Vistam-se bem, escolham um lugar bonito e tirem fotos um do outro. Memórias para guardar!", category: "a_dois", icon: "Heart", duration: "1-2 horas", difficulty: "facil" },
+  { id: "5", title: "Noite de jogos de tabuleiro", description: "Desliguem os celulares e divirtam-se com jogos de tabuleiro ou cartas.", category: "a_dois", icon: "Heart", duration: "2-3 horas", difficulty: "facil" },
+  { id: "6", title: "Descobrir um café novo", description: "Explorem um café ou cafeteria que nunca foram. Bônus: experimentem algo diferente!", category: "jantar", icon: "UtensilsCrossed", duration: "1-2 horas", difficulty: "facil" },
+  { id: "7", title: "Spa em casa", description: "Máscaras faciais, velas aromáticas e música relaxante. Uma noite de autocuidado a dois.", category: "a_dois", icon: "Heart", duration: "2-3 horas", difficulty: "medio" },
+  { id: "8", title: "Playlist colaborativa", description: "Criem uma playlist juntos com músicas que marcaram o relacionamento de vocês.", category: "show", icon: "Music", duration: "30min-1 hora", difficulty: "facil" },
+  { id: "9", title: "Trilha ao nascer do sol", description: "Acordem cedo e façam uma trilha para ver o nascer do sol juntos. Vale muito a pena!", category: "natureza", icon: "TreePine", duration: "3-5 horas", difficulty: "elaborado" },
+  { id: "10", title: "Jantar à luz de velas", description: "Preparem um jantar especial em casa com velas e música. Romântico e íntimo.", category: "jantar", icon: "UtensilsCrossed", duration: "2-3 horas", difficulty: "medio" },
+  { id: "11", title: "Visitar uma feira livre", description: "Explorem uma feira de rua, experimentem comidas e descubram produtos locais.", category: "natureza", icon: "TreePine", duration: "2-3 horas", difficulty: "facil" },
+  { id: "12", title: "Aula online juntos", description: "Aprendam algo novo juntos: dança, culinária, idioma ou artesanato.", category: "a_dois", icon: "Heart", duration: "1-2 horas", difficulty: "medio" },
+  { id: "13", title: "Maratona de série", description: "Escolham uma série nova e façam uma maratona com snacks e conforto.", category: "cinema", icon: "Film", duration: "4-6 horas", difficulty: "facil" },
+  { id: "14", title: "Escrever cartas um para o outro", description: "Escrevam cartas de amor à moda antiga. Guardem para reler no futuro.", category: "a_dois", icon: "Heart", duration: "30min-1 hora", difficulty: "facil" },
+  { id: "15", title: "Visitar um museu", description: "Explorem um museu ou exposição de arte. Discutam o que viram depois!", category: "natureza", icon: "TreePine", duration: "2-4 horas", difficulty: "facil" },
 ]
 
 function getRandomSuggestions(count: number): DailySuggestion[] {
-  const shuffled = [...allSuggestions].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, count)
+  return [...allSuggestions].sort(() => 0.5 - Math.random()).slice(0, count)
+}
+
+const STORAGE_KEY = "nossa-agenda-couple"
+
+function loadCoupleFromStorage(): CoupleInfo {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return { name: "", partner1: "", partner2: "" }
+}
+
+function saveCoupleToStorage(couple: CoupleInfo) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(couple))
+  } catch {}
 }
 
 const AgendaContext = createContext<AgendaContextType | undefined>(undefined)
 
 export function AgendaProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<Event[]>([])
-  const [couple, setCouple] = useState<CoupleInfo>({
-    name: "",
-    partner1: "",
-    partner2: "",
-    startDate: undefined
-  })
+  const [couple, setCoupleState] = useState<CoupleInfo>({ name: "", partner1: "", partner2: "" })
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<ApiUser | null>(null)
   const [sessionLoading, setSessionLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [dailySuggestions, setDailySuggestions] = useState<DailySuggestion[]>([])
 
+  // Carrega dados salvos no localStorage ao iniciar
   useEffect(() => {
+    const saved = loadCoupleFromStorage()
+    if (saved.name || saved.avatar1 || saved.avatar2) {
+      setCoupleState(prev => ({ ...prev, ...saved }))
+    }
     setDailySuggestions(getRandomSuggestions(3))
   }, [])
 
-  const refreshSuggestions = () => {
-    setDailySuggestions(getRandomSuggestions(3))
+  const setCouple = (newCouple: CoupleInfo) => {
+    setCoupleState(newCouple)
+    saveCoupleToStorage(newCouple)
   }
 
+  const refreshSuggestions = () => setDailySuggestions(getRandomSuggestions(3))
+
   const addEvent = (event: Omit<Event, "id">) => {
-    const newEvent: Event = {
-      ...event,
-      id: Date.now().toString()
-    }
-    setEvents(prev => [...prev, newEvent])
+    setEvents(prev => [...prev, { ...event, id: Date.now().toString() }])
   }
 
   const updateEvent = (id: string, updates: Partial<Event>) => {
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === id ? { ...event, ...updates } : event
-      )
-    )
+    setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e))
   }
 
   const deleteEvent = (id: string) => {
-    setEvents(prev => prev.filter(event => event.id !== id))
+    setEvents(prev => prev.filter(e => e.id !== id))
   }
 
   const addReaction = (eventId: string, reaction: Reaction) => {
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
-          ? { ...event, reactions: [...event.reactions, reaction] }
-          : event
-      )
-    )
+    setEvents(prev => prev.map(e =>
+      e.id === eventId ? { ...e, reactions: [...e.reactions, reaction] } : e
+    ))
   }
 
   const setSessionFromUser = (u: ApiUser) => {
     setUser(u)
-    const c = u.couple ?? {
-      name: u.coupleName,
-      partner1: "",
-      partner2: "",
-      startDate: undefined
-    }
-    setCouple({
+    const saved = loadCoupleFromStorage()
+    const c = u.couple ?? { name: u.coupleName, partner1: "", partner2: "" }
+    const merged: CoupleInfo = {
       name: c.name,
       partner1: c.partner1 || "",
       partner2: c.partner2 || "",
       startDate: c.startDate,
-      anniversary: c.anniversary
-    })
+      // preserva fotos salvas localmente
+      avatar1: saved.avatar1,
+      avatar2: saved.avatar2,
+      bio: saved.bio,
+    }
+    setCoupleState(merged)
     setIsLoggedIn(true)
   }
 
@@ -278,59 +165,36 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
     try {
       let res = await doFetch()
       let data = await res.json()
-      if (data?.user) {
-        setSessionFromUser(data.user)
-        setSessionLoading(false)
-        return
-      }
-      await new Promise((r) => setTimeout(r, 300))
+      if (data?.user) { setSessionFromUser(data.user); setSessionLoading(false); return }
+      await new Promise(r => setTimeout(r, 300))
       res = await doFetch()
       data = await res.json()
       if (data?.user) {
         setSessionFromUser(data.user)
       } else {
-        setIsLoggedIn(false)
-        setUser(null)
+        setIsLoggedIn(false); setUser(null)
       }
     } catch {
-      setIsLoggedIn(false)
-      setUser(null)
+      setIsLoggedIn(false); setUser(null)
     } finally {
       setSessionLoading(false)
     }
   }, [])
 
   const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
-    } catch {}
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }) } catch {}
     setIsLoggedIn(false)
     setUser(null)
-    setCouple({ name: "", partner1: "", partner2: "" })
+    setCoupleState({ name: "", partner1: "", partner2: "" })
   }
 
   return (
-    <AgendaContext.Provider
-      value={{
-        events,
-        couple,
-        isLoggedIn,
-        user,
-        sessionLoading,
-        selectedCategory,
-        dailySuggestions,
-        addEvent,
-        updateEvent,
-        deleteEvent,
-        addReaction,
-        setCouple,
-        setSessionFromUser,
-        loadSession,
-        logout,
-        setSelectedCategory,
-        refreshSuggestions
-      }}
-    >
+    <AgendaContext.Provider value={{
+      events, couple, isLoggedIn, user, sessionLoading, selectedCategory, dailySuggestions,
+      addEvent, updateEvent, deleteEvent, addReaction,
+      setCouple, setSessionFromUser, loadSession, logout,
+      setSelectedCategory, refreshSuggestions,
+    }}>
       {children}
     </AgendaContext.Provider>
   )
@@ -338,8 +202,6 @@ export function AgendaProvider({ children }: { children: ReactNode }) {
 
 export function useAgenda() {
   const context = useContext(AgendaContext)
-  if (context === undefined) {
-    throw new Error("useAgenda must be used within an AgendaProvider")
-  }
+  if (!context) throw new Error("useAgenda must be used within AgendaProvider")
   return context
 }

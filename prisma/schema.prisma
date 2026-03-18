@@ -10,7 +10,7 @@ datasource db {
   //
   // Recomendado: Neon (neon.tech) — PostgreSQL serverless grátis
   // DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/dbname?sslmode=require"
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
